@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import Forms from "@tailwindcss/forms";
 
 export default {
   content: [
@@ -14,5 +15,8 @@ export default {
       },
     },
   },
-  plugins: [],
+  safelist: [{
+    pattern: /grid-cols-./,
+  }],
+  plugins: [Forms],
 } satisfies Config;

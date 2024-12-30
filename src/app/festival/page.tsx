@@ -1,10 +1,10 @@
 import Gallery from "@/components/Gallery";
 import { getPhotos } from "@/lib/db/supabase";
-import { Tables } from "../../supabase/database.types";
 import { redirect } from "next/navigation";
+import { Tables } from "../../../supabase/database.types";
 
-export default async function Home() {
-  const photos = await getPhotos("live");
+export default async function Festival() {
+  const photos = await getPhotos("festival");
 
   const handleClick = async (photo: Tables<"photos">) => {
     "use server";
