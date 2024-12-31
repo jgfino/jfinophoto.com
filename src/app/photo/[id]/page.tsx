@@ -15,15 +15,15 @@ export default async function Photo({
   }
 
   return (
-    <div className="h-screen w-full relative pointer-events-none">
-      <Image
-        className="p-8"
-        unoptimized
-        src={`${photo.thumbnail_link}=s1024`}
-        alt="photo"
-        fill
-        style={{ objectFit: "contain" }}
-      />
+    <div className="h-full w-full flex items-center justify-center bg-red-500 pointer-events-none">
+      <div className="relative h-full" style={{ width: 1500 }}>
+        <Image
+          src={`${photo.thumbnail_link}=s1500`}
+          alt="photo"
+          fill
+          style={{ objectFit: "contain" }}
+        />
+      </div>
     </div>
   );
 }

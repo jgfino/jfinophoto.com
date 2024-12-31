@@ -17,49 +17,11 @@ create table photos
     width                integer    not null,
     height               integer    not null,
 
-    position             integer    not null
+    position             serial     not null
 );
 
 alter table photos
     enable row level security;
-
--- Grid ordering
-
-create or replace function handle_insert_order() returns trigger as
-$$
-begin
-    update photos
-    set position = position + 1
-    where position >= new.position
-      and page = new.page;
-
-    return new;
-end;
-$$ language plpgsql security definer;
-
-create trigger handle_insert_order
-    before insert
-    on photos
-    for each row
-execute function handle_insert_order();
-
-create or replace function handle_delete_order() returns trigger as
-$$
-begin
-    update photos
-    set position = position - 1
-    where position > old.position
-      and page = old.page;
-
-    return old;
-end;
-$$ language plpgsql;
-
-create trigger handle_delete_order
-    after delete
-    on photos
-    for each row
-execute function handle_delete_order();
 
 create or replace function update_updated_at() returns trigger as
 $$

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Tables } from "../../supabase/database.types";
 import { NavButton } from "./NavButton";
 import {
@@ -12,9 +12,10 @@ import {
 import { LightboxImage } from "./LightboxImage";
 import Checkbox from "./Checkbox";
 import { defaultBreakpoints, GalleryBreakpoints } from "./Gallery";
+import { formatPath } from "@/lib/util";
 
 interface InteractiveDatabaseGalleryProps {
-  pagePhotos: Tables<"photos">[];
+  photos: Tables<"photos">[];
   onReorder: (photos: Tables<"photos">[]) => Promise<void>;
   onRemove: (photos: Tables<"photos">[]) => Promise<void>;
 }
@@ -23,8 +24,7 @@ const ResponsiveGridLayout = WidthProvider(Responsive);
 
 const responsiveLayoutFromBreakpoints = (
   bp: GalleryBreakpoints,
-  layout: Layout[],
-  width: number
+  layout: Layout[]
 ): ResponsiveProps => {
   const entries = Object.entries(bp);
 
@@ -33,12 +33,9 @@ const responsiveLayoutFromBreakpoints = (
   const layouts: ResponsiveProps["layouts"] = {};
   const margin: ResponsiveProps["margin"] = {};
 
-  const windowWidth = window.innerWidth;
-  const extraWidth = windowWidth - width;
-
   for (let i = 0; i < entries.length; i++) {
     const [key, value] = entries[i];
-    breakpoints[key] = Math.max(0, Number(key) - extraWidth);
+    breakpoints[key] = Number(key);
     cols[key] = value;
     layouts[key] = layout;
     margin[key] = [0, 0];
@@ -53,38 +50,51 @@ const responsiveLayoutFromBreakpoints = (
 };
 
 export function InteractiveDatabaseGallery({
-  pagePhotos,
+  photos,
   onRemove,
   onReorder,
 }: InteractiveDatabaseGalleryProps) {
   const [canReorder, setCanReorder] = useState(false);
-  const [orderedPhotos, setOrderedPhotos] =
-    useState<Tables<"photos">[]>(pagePhotos);
+  const [orderedPhotos, setOrderedPhotos] = useState<Tables<"photos">[]>([]);
   const [removedPhotos, setRemovedPhotos] = useState<Tables<"photos">[]>([]);
   const [layoutConfig, setLayoutConfig] = useState<Layout[]>([]);
   const [currentNumCols, setCurrentNumCols] = useState(1);
   const [rowHeight, setRowHeight] = useState(0);
   const [width, setWidth] = useState(0);
 
+  const [pagePhotos, setPagePhotos] = useState<Tables<"photos">[]>(photos);
+
+  const shuffle = useCallback(() => {
+    setPagePhotos((prev) => [...prev].sort(() => Math.random() - 0.5));
+  }, []);
+
+  useEffect(() => {
+    setPagePhotos(photos);
+  }, [photos]);
+
   useEffect(() => {
     setLayoutConfig(
-      pagePhotos.map((photo, i) => ({
-        i: photo.drive_id,
-        x: i,
-        y: 0,
-        w: photo.width > photo.height ? 2 : 1,
-        h: 2,
-      }))
+      pagePhotos.map((photo) => {
+        const cell = {
+          i: photo.drive_id,
+          x: 0,
+          y: 0,
+          w: photo.width > photo.height ? 2 : 1,
+          h: 2,
+        };
+
+        return cell;
+      })
     );
   }, [pagePhotos]);
 
   useEffect(() => {
     const orderedIds = layoutConfig.sort((a, b) => {
       if (a.y === b.y) {
-        return a.x - b.x;
+        return b.x - a.x;
       }
 
-      return a.y - b.y;
+      return b.y - a.y;
     });
 
     setOrderedPhotos(
@@ -119,13 +129,14 @@ export function InteractiveDatabaseGallery({
           checked={canReorder}
           onClick={() => setCanReorder(!canReorder)}
         />
+        <NavButton
+          onClick={() => shuffle()}
+          text="Shuffle"
+          className="flex-1"
+        />
       </div>
       <ResponsiveGridLayout
-        {...responsiveLayoutFromBreakpoints(
-          defaultBreakpoints,
-          layoutConfig,
-          width
-        )}
+        {...responsiveLayoutFromBreakpoints(defaultBreakpoints, layoutConfig)}
         onWidthChange={setWidth}
         onBreakpointChange={(bp) => {
           setCurrentNumCols(defaultBreakpoints[bp]);
@@ -140,7 +151,7 @@ export function InteractiveDatabaseGallery({
         {pagePhotos.map((photo) => (
           <div key={photo.drive_id} className="p-1">
             <LightboxImage<"db">
-              key={photo.drive_id}
+              hoverText={formatPath(photo.path) + photo.position}
               grayed={removedPhotos.includes(photo)}
               size={220}
               photo={photo}

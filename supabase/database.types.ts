@@ -55,7 +55,7 @@ export type Database = {
           page: Database["public"]["Enums"]["photo_page"]
           parent_folder_id: string
           path: string[]
-          position: number
+          position?: number
           thumbnail_link: string
           thumbnail_updated_at: string
           updated_at?: string

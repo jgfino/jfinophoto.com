@@ -19,7 +19,9 @@ export const addPhotoToPage = async (
 
   // Create a new photo object
   const now = new Date().toISOString();
-  const newPhoto: Tables<"photos"> = {
+
+  // Insert or update the new photo
+  const { error } = await serviceClient.from("photos").upsert({
     created_at: now,
     updated_at: now,
     drive_id: photo.id,
@@ -30,13 +32,7 @@ export const addPhotoToPage = async (
     path: photo.path,
     width: photo.width,
     height: photo.height,
-
-    // This will put it back at the beginning if it already exists
-    position: 0,
-  };
-
-  // Insert or update the new photo
-  const { error } = await serviceClient.from("photos").upsert(newPhoto, {
+  }, {
     onConflict: "drive_id, page",
     ignoreDuplicates: true,
   });
@@ -94,7 +90,7 @@ export const removePhotosFromPage = async (
  * Update the thumbnail links for all saved photos, if needed
  */
 export const updateThumbnailLinks = async () => {
-  const hourAgo = new Date(Date.now() - 1000 * 60 * 60).toISOString();
+  const hourAgo = new Date(Date.now() - 1000 * 30 * 60).toISOString();
 
   const { data: toUpdate, error: toUpdateError } = await serviceClient.from(
     "photos",
@@ -162,10 +158,9 @@ export const updateThumbnailLinks = async () => {
 export const getPhotos = async (type?: Enums<"photo_page">) => {
   console.log(`Getting database photos for ${type} page`);
 
-  const query = serviceClient.from("photos").select("*").order(
-    "position",
-    { ascending: true },
-  );
+  const query = serviceClient.from("photos").select("*").order("position", {
+    ascending: true,
+  });
 
   if (type) {
     query.eq("page", type);
@@ -176,6 +171,9 @@ export const getPhotos = async (type?: Enums<"photo_page">) => {
   if (error) {
     throw error;
   }
+
+  // Shuffle
+  data.sort(() => Math.random() - 0.5);
 
   return data || [];
 };

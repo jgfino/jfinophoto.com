@@ -2,6 +2,31 @@
 @tailwind components;
 @tailwind utilities;
 
+.body {
+  height: calc(100vh - calc(100vh - 100%));
+}
+
+/* For animations */
+.cell-hidden {
+  opacity: 0;
+  filter: blur(3px);
+  transform: translateY(25px);
+  transition: all 1.5s;
+}
+
+.cell-visible {
+  opacity: 1;
+  filter: blur(0);
+  transform: translateY(0);
+
+  /* different scale transition speed */
+}
+
+.cell-visible:hover {
+  transform: scale(1.02);
+  transition: all 0.5s;
+}
+
 /* For react-grid-layout */
 
 .react-grid-layout {

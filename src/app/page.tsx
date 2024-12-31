@@ -16,7 +16,7 @@ export default async function Home() {
       <Gallery<"db">
         numColumns={7}
         photoSize={512}
-        photos={photos}
+        photos={photos.reverse()}
         onClick={handleClick}
       />
     </div>

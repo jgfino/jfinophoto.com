@@ -136,7 +136,7 @@ export default async function Edit({
         />
       ) : (
         <InteractiveDatabaseGallery
-          pagePhotos={pagePhotos}
+          photos={pagePhotos}
           onReorder={onOrderSaved}
           onRemove={onPhotosRemoved}
         />

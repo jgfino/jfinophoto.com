@@ -3,8 +3,9 @@
 import type { DrivePhoto } from "@/lib/google/drive";
 import { Tables } from "../../supabase/database.types";
 import { LightboxImage } from "./LightboxImage";
-import { isDrivePhoto } from "@/lib/util";
+import { formatPath, isDrivePhoto } from "@/lib/util";
 import { useEffect, useState } from "react";
+import Shuffle from "../../public/shuffle.svg";
 
 export type GalleryType = "drive" | "db";
 export type GalleryPhoto<T extends GalleryType> = T extends "drive"
@@ -16,8 +17,9 @@ export type GalleryBreakpoints = {
 };
 
 export const defaultBreakpoints: Record<string, number> = {
-  5000: 10,
-  3000: 9,
+  5000: 11,
+  4000: 10,
+  3500: 9,
   2500: 8,
   2000: 7,
   1000: 6,
@@ -25,7 +27,6 @@ export const defaultBreakpoints: Record<string, number> = {
   800: 4,
   700: 3,
   600: 2,
-  400: 1,
 };
 
 interface GalleryProps<T extends GalleryType> {
@@ -45,7 +46,37 @@ export default function Gallery<T extends GalleryType>({
   numColumns,
   breakpoints = defaultBreakpoints,
 }: GalleryProps<T>) {
+  const [shuffledPhotos, setShuffledPhotos] = useState(photos);
   const [responsiveCols, setResponsiveCols] = useState(numColumns || 7);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("cell-visible");
+        }
+      });
+    });
+
+    const cells = document.querySelectorAll(".cell-hidden");
+
+    cells.forEach((cell) => {
+      observer.observe(cell);
+    });
+
+    return () => {
+      window.scrollTo(0, 0);
+      cells.forEach((cell) => {
+        observer.unobserve(cell);
+        cell.classList.remove("cell-visible");
+      });
+    };
+  }, [shuffledPhotos]);
+
+  // Update photos when they change
+  useEffect(() => {
+    setShuffledPhotos(photos);
+  }, [photos]);
 
   // Responsive columns
   useEffect(() => {
@@ -69,11 +100,11 @@ export default function Gallery<T extends GalleryType>({
   }, [breakpoints, numColumns]);
 
   return (
-    <div className="w-full">
+    <div className="w-full flex flex-col">
       <div
-        className={`grid gap-2 grid-flow-row-dense grid-cols-${responsiveCols}`}
+        className={`grid gap-8 grid-flow-row-dense grid-cols-${responsiveCols}`}
       >
-        {photos.map((photo) => (
+        {shuffledPhotos.map((photo) => (
           <div
             key={isDrivePhoto(photo) ? photo.id : photo.drive_id}
             style={{
@@ -82,6 +113,8 @@ export default function Gallery<T extends GalleryType>({
             }}
           >
             <LightboxImage
+              className="cell-hidden"
+              hoverText={formatPath(photo.path)}
               grayed={grayedPhotos?.includes(
                 isDrivePhoto(photo) ? photo.id : photo.drive_id
               )}
@@ -92,6 +125,14 @@ export default function Gallery<T extends GalleryType>({
           </div>
         ))}
       </div>
+      <button
+        className="flex flex-row gap-2 items-center justify-center fixed text-black bottom-4 bg-white p-4 px-8 rounded-full shadow-md self-center"
+        onClick={() => {
+          setShuffledPhotos([...photos].sort(() => Math.random() - 0.5));
+        }}
+      >
+        <Shuffle width={40} height={40} />
+      </button>
     </div>
   );
 }
