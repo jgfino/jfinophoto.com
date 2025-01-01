@@ -1,7 +1,7 @@
-import Gallery from "@/components/Gallery";
 import { getPhotos } from "@/lib/db/supabase";
 import { Tables } from "../../supabase/database.types";
 import { redirect } from "next/navigation";
+import Gallery from "@/components/Gallery";
 
 export default async function Home() {
   const photos = await getPhotos("live");
@@ -12,12 +12,13 @@ export default async function Home() {
   };
 
   return (
-    <div className="m-8">
-      <Gallery<"db">
-        numColumns={7}
+    <div className="w-full h-full">
+      <Gallery
         photoSize={512}
-        photos={photos.reverse()}
-        onClick={handleClick}
+        photos={photos}
+        onPhotoClick={handleClick}
+        showShuffle
+        animated
       />
     </div>
   );

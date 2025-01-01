@@ -1,43 +1,53 @@
 "use client";
 
+import useInteractionObserver from "@/hooks/useInteractionObserver";
 import Image from "next/image";
-import { isDrivePhoto } from "@/lib/util";
-import { GalleryPhoto, GalleryType } from "./Gallery";
+import { useRef, useState } from "react";
 
-interface LightboxImageProps<T extends GalleryType> {
+interface LightboxImageProps {
   className?: string;
-  onClick?: (photo: GalleryPhoto<T>) => void;
-  size: number;
-  photo: GalleryPhoto<T>;
+  width: number;
+  height: number;
+  src: string;
   grayed?: boolean;
   hoverText?: string;
+
+  animateClassName?: string;
 }
 
-export function LightboxImage<T extends GalleryType>({
+export function LightboxImage({
   className,
-  onClick,
-  size,
-  photo,
+  width,
+  height,
+  src,
   grayed,
   hoverText,
-}: LightboxImageProps<T>) {
+  animateClassName,
+}: LightboxImageProps) {
+  const [loaded, setLoaded] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useInteractionObserver({
+    ref,
+    animateClass: animateClassName || "",
+    enabled: !!animateClassName && loaded,
+    repeat: true,
+  });
+
   return (
     <div
-      onClick={() => {
-        onClick?.(photo);
-      }}
-      key={isDrivePhoto(photo) ? photo.id : photo.drive_id}
-      className={`relative group ${onClick ? "cursor-pointer" : ""} h-full ${
+      ref={ref}
+      key={src}
+      className={`relative group h-full hover:cursor-pointer ${
         grayed ? "opacity-50" : ""
       } ${className}`}
     >
       <Image
+        onLoad={() => setLoaded(true)}
         alt="alt"
-        src={`${
-          isDrivePhoto(photo) ? photo.thumbnailLink : photo.thumbnail_link
-        }?=s${size}`}
-        height={photo.height}
-        width={photo.width}
+        src={src}
+        height={height}
+        width={width}
         style={{ objectFit: "cover", height: "100%" }}
       />
       {hoverText && (

@@ -1,138 +1,143 @@
 "use client";
 
-import type { DrivePhoto } from "@/lib/google/drive";
-import { Tables } from "../../supabase/database.types";
-import { LightboxImage } from "./LightboxImage";
+import { DrivePhoto } from "@/lib/google/drive";
+import { Enums, Tables } from "../../supabase/database.types";
+import InteractiveResponsiveGrid, {
+  GridItem,
+} from "./InteractiveResponsiveGrid";
 import { formatPath, isDrivePhoto } from "@/lib/util";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { LightboxImage } from "./LightboxImage";
 import Shuffle from "../../public/shuffle.svg";
+import { NavButton } from "./NavButton";
+import { EditModal } from "./EditModal";
 
-export type GalleryType = "drive" | "db";
-export type GalleryPhoto<T extends GalleryType> = T extends "drive"
-  ? DrivePhoto
-  : Tables<"photos">;
+interface GalleryProps<T extends DrivePhoto | Tables<"photos">> {
+  photoSize: number;
+  photos: T[];
 
-export type GalleryBreakpoints = {
-  [width: number]: number;
-};
+  showHoverText?: boolean;
+  onPhotoClick?: (photo: T) => void;
 
-export const defaultBreakpoints: Record<string, number> = {
-  5000: 11,
-  4000: 10,
-  3500: 9,
-  2500: 8,
-  2000: 7,
-  1000: 6,
-  900: 5,
-  800: 4,
-  700: 3,
-  600: 2,
-};
+  showShuffle?: boolean;
+  animated?: boolean;
 
-interface GalleryProps<T extends GalleryType> {
-  photos: GalleryPhoto<T>[];
-  breakpoints?: GalleryBreakpoints;
-  grayedPhotos?: string[];
-  photoSize?: number;
-  numColumns?: number;
-  onClick?: (photo: GalleryPhoto<T>) => Promise<void> | void;
+  showSave?: boolean;
+  onPhotosSelected?: (photos: T[]) => void;
+
+  showModal?: boolean;
+  onModalSubmit?: (
+    photo: DrivePhoto,
+    add?: Enums<"photo_page">,
+    remove?: Enums<"photo_page">
+  ) => Promise<void>;
 }
 
-export default function Gallery<T extends GalleryType>({
+type GalleryPhoto = GridItem & {
+  src: string;
+  original: DrivePhoto | Tables<"photos">;
+};
+
+export default function Gallery<T extends DrivePhoto | Tables<"photos">>({
   photos,
-  grayedPhotos,
   photoSize,
-  onClick,
-  numColumns,
-  breakpoints = defaultBreakpoints,
+  showHoverText = true,
+  onPhotoClick,
+  showShuffle,
+  animated,
+  showSave,
+  onPhotosSelected,
+  showModal,
+  onModalSubmit,
 }: GalleryProps<T>) {
-  const [shuffledPhotos, setShuffledPhotos] = useState(photos);
-  const [responsiveCols, setResponsiveCols] = useState(numColumns || 7);
-
+  const [items, setItems] = useState<GalleryPhoto[]>([]);
   useEffect(() => {
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("cell-visible");
-        }
-      });
-    });
+    setItems(
+      photos.map((p) => ({
+        key: isDrivePhoto(p) ? p.id : p.drive_id,
+        width: p.width,
+        height: p.height,
+        src: `${
+          isDrivePhoto(p) ? p.thumbnailLink : p.thumbnail_link
+        }=s${photoSize}`,
+        original: p,
+      }))
+    );
+  }, [photoSize, photos]);
 
-    const cells = document.querySelectorAll(".cell-hidden");
+  const [selectedItems, setSelectedItems] = useState<GalleryPhoto[]>([]);
 
-    cells.forEach((cell) => {
-      observer.observe(cell);
-    });
+  const [modalPhoto, setModalPhoto] = useState<DrivePhoto>();
 
-    return () => {
-      window.scrollTo(0, 0);
-      cells.forEach((cell) => {
-        observer.unobserve(cell);
-        cell.classList.remove("cell-visible");
-      });
-    };
-  }, [shuffledPhotos]);
+  const handleModalSubmit = useCallback(
+    async (add?: Enums<"photo_page">, remove?: Enums<"photo_page">) => {
+      if (!modalPhoto) return;
+      await onModalSubmit?.(modalPhoto, add, remove);
+      setModalPhoto(undefined);
+    },
+    [onModalSubmit, modalPhoto]
+  );
 
-  // Update photos when they change
-  useEffect(() => {
-    setShuffledPhotos(photos);
-  }, [photos]);
-
-  // Responsive columns
-  useEffect(() => {
-    const handleResize = () => {
-      if (!breakpoints) return;
-
-      const width = window.innerWidth;
-      const cols = Object.entries(breakpoints).find(([bp]) => width < +bp);
-      if (!cols) {
-        setResponsiveCols(Object.values(breakpoints).at(-1) || 7);
-        return;
-      }
-
-      setResponsiveCols(cols[1]);
-    };
-
-    window.addEventListener("resize", handleResize);
-    handleResize();
-
-    return () => window.removeEventListener("resize", handleResize);
-  }, [breakpoints, numColumns]);
+  const renderItem = useCallback(
+    (item: GalleryPhoto, selected: boolean) => {
+      return (
+        <LightboxImage
+          className={animated ? "photo-cell-start" : undefined}
+          animateClassName={animated ? "photo-cell-end" : undefined}
+          src={item.src}
+          width={item.width}
+          height={item.height}
+          grayed={selected}
+          hoverText={showHoverText ? formatPath(item.original.path) : undefined}
+        />
+      );
+    },
+    [showHoverText, animated]
+  );
 
   return (
-    <div className="w-full flex flex-col">
-      <div
-        className={`grid gap-8 grid-flow-row-dense grid-cols-${responsiveCols}`}
-      >
-        {shuffledPhotos.map((photo) => (
-          <div
-            key={isDrivePhoto(photo) ? photo.id : photo.drive_id}
-            style={{
-              gridColumnEnd: photo.width > photo.height ? `span 2` : `span 1`,
-              gridRowEnd: `span 1`,
-            }}
-          >
-            <LightboxImage
-              className="cell-hidden"
-              hoverText={formatPath(photo.path)}
-              grayed={grayedPhotos?.includes(
-                isDrivePhoto(photo) ? photo.id : photo.drive_id
-              )}
-              size={photoSize || 220}
-              photo={photo}
-              onClick={onClick}
-            />
-          </div>
-        ))}
-      </div>
-      <button
-        className="flex flex-row gap-2 items-center justify-center fixed text-black bottom-4 bg-white p-4 px-8 rounded-full shadow-md self-center"
-        onClick={() => {
-          setShuffledPhotos([...photos].sort(() => Math.random() - 0.5));
+    <div className="md:p-8 p-2 flex flex-col">
+      {showSave && (
+        <NavButton
+          text="Save"
+          className="self-center w-1/6"
+          onClick={() =>
+            onPhotosSelected?.(selectedItems.map((p) => p.original as T))
+          }
+        />
+      )}
+      <InteractiveResponsiveGrid
+        selectable={!!onPhotosSelected}
+        onItemsSelected={setSelectedItems}
+        items={items}
+        selectedItems={selectedItems}
+        margin={16}
+        renderItem={renderItem}
+        onItemClicked={(item) => {
+          if (showModal) {
+            setModalPhoto(item.original as DrivePhoto);
+          } else {
+            onPhotoClick?.(item.original as T);
+          }
         }}
-      >
-        <Shuffle width={40} height={40} />
-      </button>
+      />
+      {showShuffle && (
+        <button
+          className="shadow-lg xl:shadow-none xl:absolute xl:bottom-auto text-black xl:top-16 bottom-4 xl:left-0 xl:right-0 p-2 fixed self-center justify-self-center bg-white px-8 rounded-full"
+          onClick={() => {
+            setItems([...items].sort(() => Math.random() - 0.5));
+            window.scrollTo(0, 0);
+          }}
+        >
+          <Shuffle width={40} height={40} />
+        </button>
+      )}
+      {modalPhoto && (
+        <EditModal
+          onClose={() => setModalPhoto(undefined)}
+          onSubmit={handleModalSubmit}
+        />
+      )}
     </div>
   );
 }

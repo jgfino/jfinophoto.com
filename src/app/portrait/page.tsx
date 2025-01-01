@@ -12,8 +12,14 @@ export default async function Portrait() {
   };
 
   return (
-    <div className="p-8">
-      <Gallery<"db"> photos={photos} onClick={handleClick} />
+    <div className="w-full h-full">
+      <Gallery
+        photoSize={512}
+        photos={photos}
+        onPhotoClick={handleClick}
+        showShuffle
+        animated
+      />
     </div>
   );
 }

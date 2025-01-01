@@ -13,6 +13,9 @@ export default {
         background: "var(--background)",
         foreground: "var(--foreground)",
       },
+      animation: {
+        fade: "fadeIn .5s ease-in-out",
+      },
     },
   },
   safelist: [{

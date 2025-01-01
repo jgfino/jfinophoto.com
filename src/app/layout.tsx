@@ -22,11 +22,9 @@ export default async function RootLayout({
 }>) {
   await updateThumbnailLinks();
   return (
-    <html lang="en">
-      <body
-        className={`${hindVadodara.className} antialiased flex flex-row body`}
-      >
-        {/* <Header /> */}
+    <html lang="en" className="h-full">
+      <body className={`${hindVadodara.className} antialiased flex flex-col`}>
+        <Header />
         {children}
       </body>
     </html>

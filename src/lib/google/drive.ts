@@ -243,3 +243,39 @@ export const getUpdatedThumbnailLinks = async (photos: Tables<"photos">[]) => {
     notUpdated,
   };
 };
+
+// export const updatePaths = async () => {
+//   console.log("Updating paths");
+//   let nextPageToken: string | undefined | null;
+
+//   const allPhotos = [];
+//   do {
+//     const { photos, nextPageToken: token } = await getDrivePhotos(
+//       "festival",
+//       1000,
+//       nextPageToken || undefined,
+//     );
+
+//     allPhotos.push(...photos);
+
+//     nextPageToken = token;
+//     console.log(`Next page token: ${nextPageToken}`);
+//   } while (nextPageToken);
+
+//   console.log("hello");
+
+//   const dbPhotos = await getPhotos("live");
+
+//   for (const p of dbPhotos) {
+//     const drivePhoto = allPhotos.find((dp) => dp.id === p.drive_id);
+
+//     if (!drivePhoto) {
+//       console.log(`Photo not found in Drive: ${p.drive_id}`);
+//       continue;
+//     }
+
+//     await serviceClient.from("photos").update({
+//       path: drivePhoto.path,
+//     }).eq("drive_id", p.drive_id);
+//   }
+// };

@@ -12,12 +12,13 @@ export default async function Festival() {
   };
 
   return (
-    <div className="m-8">
-      <Gallery<"db">
-        numColumns={7}
+    <div className="w-full h-full">
+      <Gallery
         photoSize={512}
         photos={photos}
-        onClick={handleClick}
+        onPhotoClick={handleClick}
+        showShuffle
+        animated
       />
     </div>
   );

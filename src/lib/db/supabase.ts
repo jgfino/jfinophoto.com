@@ -2,7 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 import { Database, Enums, Tables } from "../../../supabase/database.types";
 import { DrivePhoto, getUpdatedThumbnailLinks } from "../google/drive";
 
-const serviceClient = createClient<Database>(
+export const serviceClient = createClient<Database>(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_KEY!,
 );

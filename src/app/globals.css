@@ -2,29 +2,34 @@
 @tailwind components;
 @tailwind utilities;
 
-.body {
-  height: calc(100vh - calc(100vh - 100%));
+html {
+  height: 100%;
+}
+
+body {
+  height: 100%;
 }
 
 /* For animations */
-.cell-hidden {
+.photo-cell-start {
   opacity: 0;
-  filter: blur(3px);
+  filter: blur(2px);
   transform: translateY(25px);
-  transition: all 1.5s;
+  transform: scale(0.95);
+  transition: all 2s;
 }
 
-.cell-visible {
+@media (prefers-reduced-motion) {
+  .photo-cell-start {
+    transition: none;
+  }
+}
+
+.photo-cell-end {
   opacity: 1;
   filter: blur(0);
   transform: translateY(0);
-
-  /* different scale transition speed */
-}
-
-.cell-visible:hover {
-  transform: scale(1.02);
-  transition: all 0.5s;
+  transform: scale(1);
 }
 
 /* For react-grid-layout */
