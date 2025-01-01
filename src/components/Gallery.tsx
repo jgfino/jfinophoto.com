@@ -100,7 +100,7 @@ export default function Gallery<T extends DrivePhoto | Tables<"photos">>({
       {showSave && (
         <NavButton
           text="Save"
-          className="self-center w-1/6"
+          className="self-center w-1/2 md:w-1/6"
           onClick={() =>
             onPhotosSelected?.(selectedItems.map((p) => p.original as T))
           }

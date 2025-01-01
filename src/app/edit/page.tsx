@@ -83,7 +83,7 @@ export default async function Edit({
 
   return (
     <div className="w-full h-full flex flex-col">
-      <div className="flex flex-row gap-2 w-1/2 self-center mt-8">
+      <div className="flex flex-col md:flex-row gap-2 p-8 md:w-1/2 md:self-center">
         <div className="flex flex-1 text-center flex-col gap-2">
           <p className="text-lg font-bold">ALL</p>
           <div className="flex flex-row flex-1 gap-2 justify-center">
@@ -101,7 +101,7 @@ export default async function Edit({
             />
           </div>
         </div>
-        <div className="border-l-2 border-black rounded h-1/2 self-end" />
+        <div className="border-l-2 border-black rounded h-1/2 self-end hidden md:block" />
         <div className="flex flex-1 text-center flex-col gap-2">
           <p className="text-lg font-bold">CURRENT</p>
           <div className="flex flex-row flex-1 gap-2 justify-center">
@@ -126,26 +126,15 @@ export default async function Edit({
           </div>
         </div>
       </div>
-      {type === "drive" ? (
-        <Gallery
-          photoSize={512}
-          photos={drivePhotos}
-          onModalSubmit={onModalSubmit}
-          showModal
-        />
-      ) : (
-        <Gallery
-          showSave
-          photoSize={512}
-          photos={pagePhotos}
-          onPhotosSelected={onPhotosRemoved}
-        />
-      )}
       {type === "drive" && (
-        <div className="flex flex-row justify-between w-full p-8">
-          <NavButton className="w-1/12" text="Previous" backButton />
+        <div className="flex flex-row justify-center w-1/2 self-center gap-8">
           <NavButton
-            className="w-1/6"
+            className="flex-1 md:w-1/6 md:flex-none"
+            text="Previous"
+            backButton
+          />
+          <NavButton
+            className="flex-1 md:w-1/6 md:flex-none"
             text="Next"
             href={`/edit?type=${type}&page=${page}${
               nextPageToken ? `&token=${nextPageToken}` : ""
@@ -153,6 +142,23 @@ export default async function Edit({
           />
         </div>
       )}
+      <div className="flex-1">
+        {type === "drive" ? (
+          <Gallery
+            photoSize={512}
+            photos={drivePhotos}
+            onModalSubmit={onModalSubmit}
+            showModal
+          />
+        ) : (
+          <Gallery
+            showSave
+            photoSize={512}
+            photos={pagePhotos}
+            onPhotosSelected={onPhotosRemoved}
+          />
+        )}
+      </div>
     </div>
   );
 }
