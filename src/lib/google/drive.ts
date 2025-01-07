@@ -1,7 +1,6 @@
 import { drive_v3, google } from "googleapis";
 import credentials from "../../../credentials.json";
-import { Enums, Tables } from "../../../supabase/database.types";
-import { cache } from "react";
+import { Enums } from "../../../supabase/database.types";
 
 const CONCERT_FOLDER = process.env.DRIVE_CONCERT_FOLDER!;
 const FESTIVAL_FOLDER = process.env.DRIVE_FESTIVAL_FOLDER!;
@@ -66,14 +65,9 @@ const getSubfolders = async (
  * Get all the photos in Google Drive for a given page type
  *
  * @param type The type of photos to get
- * @param limit The number of photos to get
- * @param pageToken The page token for pagination
- * @param folders The folder map cache to prevent redundant API calls
  */
-export const getDrivePhotos = cache(async (
+export const getDrivePhotos = async (
   type: Enums<"photo_page">,
-  limit: number,
-  pageToken: string | undefined,
 ) => {
   console.log(`Getting Google Drive photos for ${type} page`);
 
@@ -108,6 +102,10 @@ export const getDrivePhotos = cache(async (
 
   // Now, make a neat map of the folders with lowest level ID (contains the photos) and an array of parent folders names
   const foldersMap: Record<string, drive_v3.Schema$File[]> = {};
+
+  if (Object.keys(levels).length === 0) {
+    return [];
+  }
 
   const lowestLevel = Object.keys(levels)[Object.keys(levels).length - 1];
 
@@ -151,131 +149,48 @@ export const getDrivePhotos = cache(async (
 
   const photos = [];
 
-  const res = (
-    await drive.files.list({
-      fields: photoFields.join(","),
-      q: photoQuery,
-      pageSize: limit,
-      orderBy: "createdTime desc",
-      pageToken: pageToken,
-    })
-  ).data as drive_v3.Schema$FileList;
-
-  const resFiles = res.files || [];
-
-  // Get the parent folder paths for each photo
-  const photoMap: Record<string, string[]> = {};
-
-  for (const p of resFiles) {
-    photoMap[p.id!] = foldersMap[p.parents![0]].map((f) => f.name!);
-  }
-
-  const mappedPhotos = resFiles.map((p) => ({
-    id: p.id!,
-    name: p.name!,
-    thumbnailLink: p.thumbnailLink!.replace("=s220", ""),
-    parentFolderId: p.parents![0],
-    width: p.imageMediaMetadata?.width || 0,
-    height: p.imageMediaMetadata?.height || 0,
-    path: photoMap[p.id!],
-  }));
-
-  photos.push(...mappedPhotos);
-
-  return {
-    photos,
-    nextPageToken: res.nextPageToken,
-  };
-});
-
-export type DrivePhoto = Awaited<
-  ReturnType<typeof getDrivePhotos>
->["photos"][0];
-
-/**
- * Get updated thumbnail links for the given photos. Will also get updated links for photos
- * in the same folders as the given photos
- * @param photos: The photos to update
- */
-export const getUpdatedThumbnailLinks = async (photos: Tables<"photos">[]) => {
-  console.log(`Updating thumbnail links for ${photos.length} photos`);
-
-  const photoQuery = `(${
-    photos.map((p) => `'${p.parent_folder_id}' in parents`).join(
-      " or ",
-    )
-  }) and mimeType='image/jpeg'`;
-
-  const photoFields = "files/id,files/thumbnailLink,nextPageToken";
-
   let nextPageToken: string | undefined | null;
-  const updatedLinks: Record<string, string> = {};
 
   do {
     const res = (
       await drive.files.list({
-        fields: photoFields,
+        fields: photoFields.join(","),
         q: photoQuery,
         pageSize: 1000,
+        orderBy: "createdTime desc",
         pageToken: nextPageToken || undefined,
       })
     ).data as drive_v3.Schema$FileList;
 
+    nextPageToken = res.nextPageToken;
+
     const resFiles = res.files || [];
 
+    // Get the parent folder paths for each photo
+    const photoMap: Record<string, string[]> = {};
+
     for (const p of resFiles) {
-      updatedLinks[p.id!] = p.thumbnailLink!.replace("=s220", "");
+      photoMap[p.id!] = foldersMap[p.parents![0]].map((f) => f.name!);
     }
 
-    nextPageToken = res.nextPageToken;
+    const mappedPhotos = resFiles.map((p) => ({
+      id: p.id!,
+      name: p.name!,
+      thumbnailLink: p.thumbnailLink!.replace("=s220", ""),
+      parentFolderId: p.parents![0],
+      width: p.imageMediaMetadata?.width || 0,
+      height: p.imageMediaMetadata?.height || 0,
+      path: photoMap[p.id!],
+    }));
+
+    photos.push(...mappedPhotos);
   } while (nextPageToken);
 
-  const notUpdated = photos.filter((p) => !updatedLinks[p.drive_id]);
+  console.log(`Found ${photos.length} photos for ${type} page`);
 
-  console.log(
-    `Found ${
-      Object.values(updatedLinks).length
-    } updated thumbnail links. Found ${notUpdated.length} photos that were not found in Drive`,
-  );
-
-  return {
-    updated: updatedLinks,
-    notUpdated,
-  };
+  return photos;
 };
 
-// export const updatePaths = async () => {
-//   console.log("Updating paths");
-//   let nextPageToken: string | undefined | null;
-
-//   const allPhotos = [];
-//   do {
-//     const { photos, nextPageToken: token } = await getDrivePhotos(
-//       "festival",
-//       1000,
-//       nextPageToken || undefined,
-//     );
-
-//     allPhotos.push(...photos);
-
-//     nextPageToken = token;
-//     console.log(`Next page token: ${nextPageToken}`);
-//   } while (nextPageToken);
-
-//   console.log("hello");
-
-//   const dbPhotos = await getPhotos("live");
-
-//   for (const p of dbPhotos) {
-//     const drivePhoto = allPhotos.find((dp) => dp.id === p.drive_id);
-
-//     if (!drivePhoto) {
-//       console.log(`Photo not found in Drive: ${p.drive_id}`);
-//       continue;
-//     }
-
-//     await serviceClient.from("photos").update({
-//       path: drivePhoto.path,
-//     }).eq("drive_id", p.drive_id);
-//   }
-// };
+export type DrivePhoto = Awaited<
+  ReturnType<typeof getDrivePhotos>
+>[number];

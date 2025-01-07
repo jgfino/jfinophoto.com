@@ -5,7 +5,7 @@ import { Enums, Tables } from "../../supabase/database.types";
 import InteractiveResponsiveGrid, {
   GridItem,
 } from "./InteractiveResponsiveGrid";
-import { formatPath, isDrivePhoto } from "@/lib/util";
+import { formatPath, isDrivePhoto, shuffleArray } from "@/lib/util";
 import { useCallback, useEffect, useState } from "react";
 import { LightboxImage } from "./LightboxImage";
 import Shuffle from "../../public/shuffle.svg";
@@ -52,8 +52,9 @@ export default function Gallery<T extends DrivePhoto | Tables<"photos">>({
 }: GalleryProps<T>) {
   const [items, setItems] = useState<GalleryPhoto[]>([]);
   useEffect(() => {
+    const shuffledPhotos = showShuffle ? shuffleArray(photos) : photos;
     setItems(
-      photos.map((p) => ({
+      shuffledPhotos.map((p) => ({
         key: isDrivePhoto(p) ? p.id : p.drive_id,
         width: p.width,
         height: p.height,
@@ -63,7 +64,7 @@ export default function Gallery<T extends DrivePhoto | Tables<"photos">>({
         original: p,
       }))
     );
-  }, [photoSize, photos]);
+  }, [photoSize, photos, showShuffle]);
 
   const [selectedItems, setSelectedItems] = useState<GalleryPhoto[]>([]);
 
@@ -79,11 +80,11 @@ export default function Gallery<T extends DrivePhoto | Tables<"photos">>({
   );
 
   const renderItem = useCallback(
-    (item: GalleryPhoto, selected: boolean) => {
+    (item: GalleryPhoto, index: number, selected: boolean) => {
       return (
         <LightboxImage
-          className={animated ? "photo-cell-start" : undefined}
-          animateClassName={animated ? "photo-cell-end" : undefined}
+          key={index.toString()}
+          animated={animated ? "full" : undefined}
           src={item.src}
           width={item.width}
           height={item.height}
@@ -125,7 +126,9 @@ export default function Gallery<T extends DrivePhoto | Tables<"photos">>({
         <button
           className="shadow-lg xl:shadow-none xl:absolute xl:bottom-auto text-black xl:top-16 bottom-4 xl:left-0 xl:right-0 p-2 fixed self-center justify-self-center bg-white px-8 rounded-full"
           onClick={() => {
-            setItems([...items].sort(() => Math.random() - 0.5));
+            setItems((prev) => {
+              return shuffleArray(prev);
+            });
             window.scrollTo(0, 0);
           }}
         >

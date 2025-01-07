@@ -1,37 +1,50 @@
 "use client";
 
-import useInteractionObserver from "@/hooks/useInteractionObserver";
 import Image from "next/image";
-import { useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import { useInView } from "react-intersection-observer";
 
 interface LightboxImageProps {
+  index?: string;
   className?: string;
-  width: number;
-  height: number;
+  width?: number;
+  height?: number;
+  fill?: "contain" | "cover";
   src: string;
   grayed?: boolean;
   hoverText?: string;
-
-  animateClassName?: string;
+  animated?: "fade" | "full";
 }
 
 export function LightboxImage({
+  index,
   className,
   width,
   height,
+  fill,
   src,
   grayed,
   hoverText,
-  animateClassName,
+  animated,
 }: LightboxImageProps) {
   const [loaded, setLoaded] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
 
-  useInteractionObserver({
-    ref,
-    animateClass: animateClassName || "",
-    enabled: !!animateClassName && loaded,
-    repeat: true,
+  const [initializing, setInitializing] = useState(true);
+  useEffect(() => {
+    if (loaded) {
+      setTimeout(() => {
+        setInitializing(false);
+      }, 200);
+    }
+  }, [loaded]);
+
+  useEffect(() => {
+    setInitializing(true);
+  }, [index]);
+
+  const { ref, inView } = useInView({
+    skip: !loaded || initializing,
+    triggerOnce: true,
   });
 
   return (
@@ -39,8 +52,12 @@ export function LightboxImage({
       ref={ref}
       key={src}
       className={`relative group h-full hover:cursor-pointer ${
-        grayed ? "opacity-50" : ""
-      } ${className}`}
+        animated && !inView
+          ? `opacity-0 blur-sm ${
+              animated === "full" ? "translate-y-4 scale-95" : ""
+            }`
+          : `opacity-100 blur-none translate-y-0 scale-100 motion-reduce:transition-none duration-1000`
+      } ${grayed ? "opacity-50" : ""} ${className}`}
     >
       <Image
         onLoad={() => setLoaded(true)}
@@ -48,7 +65,8 @@ export function LightboxImage({
         src={src}
         height={height}
         width={width}
-        style={{ objectFit: "cover", height: "100%" }}
+        fill={!!fill}
+        style={{ objectFit: fill, height: "100%" }}
       />
       {hoverText && (
         <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-70 text-center p-2 hidden group-hover:block">

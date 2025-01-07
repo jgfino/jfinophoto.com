@@ -1,4 +1,5 @@
-import { Tables } from "../../supabase/database.types";
+import { revalidatePath } from "next/cache";
+import { Enums, Tables } from "../../supabase/database.types";
 import type { DrivePhoto } from "./google/drive";
 
 export const isDrivePhoto = (
@@ -29,4 +30,34 @@ export const formatPath = (path: string[], full = false) => {
   }
 
   return `${artist} (${year})`;
+};
+
+export function shuffleArray<T>(array: T[]) {
+  const copy = [...array];
+  for (let i = copy.length - 1; i >= 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const temp = copy[i];
+    copy[i] = copy[j];
+    copy[j] = temp;
+  }
+  return copy;
+}
+
+export const revalidatePages = async (page: Enums<"photo_page">) => {
+  switch (page) {
+    case "live":
+      revalidatePath("/", "page");
+      revalidatePath("/edit/current/live");
+      break;
+    case "festival":
+      revalidatePath("/festival", "page");
+      revalidatePath("/edit/current/festival");
+      break;
+    case "portrait":
+      revalidatePath("/portrait", "page");
+      revalidatePath("/edit/current/portrait");
+      break;
+  }
+
+  revalidatePath("/photo/[id]", "page");
 };

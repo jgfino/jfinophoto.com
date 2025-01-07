@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Hind_Vadodara } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/Header";
-import { updateThumbnailLinks } from "@/lib/db/supabase";
 
 const hindVadodara = Hind_Vadodara({
   subsets: ["latin"],
@@ -20,7 +19,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  await updateThumbnailLinks();
   return (
     <html lang="en" className="h-full">
       <body className={`${hindVadodara.className} antialiased flex flex-col`}>

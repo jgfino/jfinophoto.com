@@ -10,26 +10,36 @@ body {
   height: 100%;
 }
 
-/* For animations */
-.photo-cell-start {
-  opacity: 0;
-  filter: blur(2px);
-  transform: translateY(25px);
-  transform: scale(0.95);
-  transition: all 2s;
+/* Loading spinner */
+/* https://dev.to/afif/i-made-100-css-loaders-for-your-next-project-4eje */
+.shapes-5 {
+  width: 40px;
+  height: 40px;
+  color: black;
+  background: linear-gradient(currentColor 0 0),
+    linear-gradient(currentColor 0 0), linear-gradient(currentColor 0 0),
+    linear-gradient(currentColor 0 0);
+  background-size: 21px 21px;
+  background-repeat: no-repeat;
+  animation: sh5 1.5s infinite cubic-bezier(0.3, 1, 0, 1);
 }
-
-@media (prefers-reduced-motion) {
-  .photo-cell-start {
-    transition: none;
+@keyframes sh5 {
+  0% {
+    background-position: 0 0, 100% 0, 100% 100%, 0 100%;
   }
-}
-
-.photo-cell-end {
-  opacity: 1;
-  filter: blur(0);
-  transform: translateY(0);
-  transform: scale(1);
+  33% {
+    background-position: 0 0, 100% 0, 100% 100%, 0 100%;
+    width: 60px;
+    height: 60px;
+  }
+  66% {
+    background-position: 100% 0, 100% 100%, 0 100%, 0 0;
+    width: 60px;
+    height: 60px;
+  }
+  100% {
+    background-position: 100% 0, 100% 100%, 0 100%, 0 0;
+  }
 }
 
 /* For react-grid-layout */

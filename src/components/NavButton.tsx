@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation";
 
 interface NavButtonProps {
   href?: string;
-  backButton?: boolean;
   onClick?: () => void;
   text: string;
   outline?: boolean;
@@ -13,7 +12,6 @@ interface NavButtonProps {
 
 export function NavButton({
   href,
-  backButton,
   text,
   outline,
   onClick,
@@ -23,9 +21,7 @@ export function NavButton({
   return (
     <button
       onClick={() => {
-        if (backButton) {
-          router.back();
-        } else if (href) {
+        if (href) {
           router.push(href);
         } else if (onClick) {
           onClick();

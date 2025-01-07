@@ -74,7 +74,7 @@ export interface InteractiveResponsiveGridProps<T extends GridItem> {
   numColumns?: number;
   margin?: number;
 
-  renderItem: (item: T, selected: boolean) => ReactNode;
+  renderItem: (item: T, index: number, selected: boolean) => ReactNode;
 
   onItemsReordered?: (items: T[]) => Promise<void> | void;
   onItemsSelected?: (items: T[]) => Promise<void> | void;
@@ -184,7 +184,7 @@ export default function InteractiveResponsiveGrid<T extends GridItem>({
         {...responsiveLayout}
         onWidthChange={onWidthChange}
       >
-        {items.map((item) => (
+        {items.map((item, index) => (
           <div
             key={item.key}
             onClick={() => {
@@ -199,6 +199,7 @@ export default function InteractiveResponsiveGrid<T extends GridItem>({
           >
             {renderItem(
               item,
+              index,
               selectedItems.find((i) => i.key === item.key) !== undefined
             )}
           </div>

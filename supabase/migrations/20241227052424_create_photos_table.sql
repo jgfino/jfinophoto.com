@@ -2,8 +2,8 @@ create type photo_page as enum ('live', 'portrait', 'festival');
 
 create table photos
 (
-    created_at           timestamp  not null default now(),
-    updated_at           timestamp  not null default now(),
+    created_at           timestamptz  not null default now(),
+    updated_at           timestamptz  not null default now(),
 
     drive_id             text       not null,
     page                 photo_page not null,
@@ -12,7 +12,7 @@ create table photos
     path                 text[]     not null,
     parent_folder_id     text       not null,
     thumbnail_link       text       not null,
-    thumbnail_updated_at timestamp  not null,
+    thumbnail_updated_at timestamptz  not null,
 
     width                integer    not null,
     height               integer    not null,

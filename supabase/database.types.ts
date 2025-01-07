@@ -34,6 +34,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      drive_cache: {
+        Row: {
+          created_at: string
+          data: string
+          type: Database["public"]["Enums"]["photo_page"]
+        }
+        Insert: {
+          created_at?: string
+          data: string
+          type: Database["public"]["Enums"]["photo_page"]
+        }
+        Update: {
+          created_at?: string
+          data?: string
+          type?: Database["public"]["Enums"]["photo_page"]
+        }
+        Relationships: []
+      }
       photos: {
         Row: {
           created_at: string
@@ -49,7 +67,7 @@ export type Database = {
           width: number
         }
         Insert: {
-          created_at?: string
+          created_at: string
           drive_id: string
           height: number
           page: Database["public"]["Enums"]["photo_page"]
@@ -58,7 +76,7 @@ export type Database = {
           position?: number
           thumbnail_link: string
           thumbnail_updated_at: string
-          updated_at?: string
+          updated_at: string
           width: number
         }
         Update: {

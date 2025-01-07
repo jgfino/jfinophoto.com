@@ -14,7 +14,7 @@ export default async function Home() {
   return (
     <div className="w-full h-full">
       <Gallery
-        photoSize={512}
+        photoSize={1024}
         photos={photos}
         onPhotoClick={handleClick}
         showShuffle

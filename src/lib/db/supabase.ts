@@ -1,8 +1,10 @@
 import { createClient } from "@supabase/supabase-js";
 import { Database, Enums, Tables } from "../../../supabase/database.types";
-import { DrivePhoto, getUpdatedThumbnailLinks } from "../google/drive";
+import { DrivePhoto, getDrivePhotos } from "../google/drive";
 
-export const serviceClient = createClient<Database>(
+export const PAGE_TYPES = ["live", "festival", "portrait"] as const;
+
+const serviceClient = createClient<Database>(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_KEY!,
 );
@@ -87,83 +89,21 @@ export const removePhotosFromPage = async (
 };
 
 /**
- * Update the thumbnail links for all saved photos, if needed
- */
-export const updateThumbnailLinks = async () => {
-  const hourAgo = new Date(Date.now() - 1000 * 30 * 60).toISOString();
-
-  const { data: toUpdate, error: toUpdateError } = await serviceClient.from(
-    "photos",
-  ).select("*")
-    .lte(
-      "thumbnail_updated_at",
-      hourAgo,
-    ).order("thumbnail_updated_at", { ascending: true }).limit(1);
-
-  if (toUpdateError) {
-    throw toUpdateError;
-  }
-
-  // All links are at most an hour old
-  if (toUpdate.length === 0) {
-    console.log(`All thumbnail links are up to date`);
-    return;
-  }
-
-  console.log(`Updating database thumbnail links`);
-
-  const allPhotos = await getPhotos();
-
-  const { updated, notUpdated } = await getUpdatedThumbnailLinks(
-    allPhotos,
-  );
-
-  // Remove the not updated photos from all pages
-  for (const photo of notUpdated) {
-    const { error } = await serviceClient
-      .from("photos")
-      .delete()
-      .eq("drive_id", photo.drive_id);
-
-    if (error) {
-      throw error;
-    }
-  }
-
-  // Update the updated photos
-  for (const [driveId, thumbnailLink] of Object.entries(updated)) {
-    const existing = await getPhoto(driveId);
-
-    if (existing) {
-      const { error } = await serviceClient
-        .from("photos")
-        .update({
-          thumbnail_link: thumbnailLink,
-          thumbnail_updated_at: new Date().toISOString(),
-        })
-        .eq("drive_id", driveId);
-
-      if (error) {
-        throw error;
-      }
-    }
-  }
-};
-
-/**
  * Get the photos for the given page, or all pages if none is given
  * @param type The page type to get the photos for
  * @returns The photos for the page
  */
-export const getPhotos = async (type?: Enums<"photo_page">) => {
-  console.log(`Getting database photos for ${type} page`);
+export const getPhotos = async (
+  page: Enums<"photo_page">,
+): Promise<Tables<"photos">[]> => {
+  console.log(`Getting database photos for ${page} page`);
 
   const query = serviceClient.from("photos").select("*").order("position", {
     ascending: true,
   });
 
-  if (type) {
-    query.eq("page", type);
+  if (page) {
+    query.eq("page", page);
   }
 
   const { data, error } = await query;
@@ -172,10 +112,7 @@ export const getPhotos = async (type?: Enums<"photo_page">) => {
     throw error;
   }
 
-  // Shuffle
-  data.sort(() => Math.random() - 0.5);
-
-  return data || [];
+  return data;
 };
 
 /**
@@ -197,27 +134,92 @@ export const getPhoto = async (driveId: string) => {
 };
 
 /**
- * Update a photo's page order
- *
- * @param photo The photo to update
- * @param page The page to update the photo on
- * @param position The new position of the photo
+ * Get the google drive photos for a page, with caching
+ * @param page The page type to get the photos for
+ * @param updateCache To force an update of the cache
+ * @returns The photos for the page
  */
-export const updatePhotoOrder = async (
-  photo: Tables<"photos">,
+export const getCachedDrivePhotos = async (
   page: Enums<"photo_page">,
-  position: number,
-) => {
-  console.log(`Updating photo order for ${photo.drive_id}`);
-
-  const { error } = await serviceClient
-    .from("photos")
-    .update({
-      position,
-    })
-    .eq("drive_id", photo.drive_id).eq("page", page);
+  limit: number,
+  offset: number,
+): Promise<DrivePhoto[]> => {
+  const { data, error } = await serviceClient
+    .from("drive_cache")
+    .select("*")
+    .eq("type", page)
+    .maybeSingle();
 
   if (error) {
     throw error;
   }
+
+  if (!data) {
+    throw new Error(`No cached photos for ${page}`);
+  }
+
+  const photos = JSON.parse(data.data) as DrivePhoto[];
+
+  console.log(`Getting cached drive photos for ${page}`);
+
+  return photos.slice(offset, offset + limit);
+};
+
+/**
+ * Update the cache and thumbnail links for all pages
+ * @param force Whether to force an update of the cache
+ */
+export const updateCacheAndThumbnailLinks = async (force = false) => {
+  await Promise.all(PAGE_TYPES.map(async (page) => {
+    // First, see if we have a valid cache entry
+    const { data, error } = await serviceClient
+      .from("drive_cache")
+      .select("*")
+      .eq("type", page)
+      .maybeSingle();
+
+    if (error) {
+      throw error;
+    }
+
+    if (data && !force) {
+      const halfHourAgo = new Date(Date.now() - 1000 * 30 * 60);
+      const createdAt = new Date(data.created_at);
+
+      if (createdAt > halfHourAgo) {
+        console.log(
+          `Drive cache and thumbnail links are up to date for ${page}`,
+        );
+        return;
+      } else {
+        console.log(`Drive cache and thumbnail links are stale for ${page}`);
+      }
+    }
+
+    const drivePhotos = await getDrivePhotos(page);
+
+    // Update cache entry
+    await serviceClient.from("drive_cache").upsert({
+      data: JSON.stringify(drivePhotos),
+      type: page,
+      created_at: new Date().toISOString(),
+    });
+
+    // Update portfolio thumbnails
+    for (const photo of drivePhotos) {
+      const { error } = await serviceClient
+        .from("photos")
+        .update({
+          thumbnail_link: photo.thumbnailLink,
+          thumbnail_updated_at: new Date().toISOString(),
+        })
+        .eq("drive_id", photo.id);
+
+      if (error) {
+        throw error;
+      }
+    }
+
+    console.log(`Updated drive cache and thumbnail links for ${page}`);
+  }));
 };
