@@ -1,8 +1,4 @@
 import { drive_v3, google } from "googleapis";
-<<<<<<< Updated upstream
-import credentials from "../../../credentials.json";
-=======
->>>>>>> Stashed changes
 import { Enums } from "../../../supabase/database.types";
 
 const CONCERT_FOLDER = process.env.DRIVE_CONCERT_FOLDER!;
@@ -12,15 +8,9 @@ const PORTRAIT_FOLDER = process.env.DRIVE_PORTRAIT_FOLDER!;
 const scopes = ["https://www.googleapis.com/auth/drive.readonly"];
 
 const auth = new google.auth.JWT(
-<<<<<<< Updated upstream
-  credentials.client_email,
-  undefined,
-  credentials.private_key,
-=======
   process.env.GOOGLE_CLIENT_EMAIL!,
   undefined,
   process.env.GOOGLE_PRIVATE_KEY!.replace(/\\n/g, "\n"),
->>>>>>> Stashed changes
   scopes,
 );
 
