@@ -3,7 +3,6 @@ import Instagram from "../../public/instagram.svg";
 import Email from "../../public/mail.svg";
 
 export default function MobileNavMenu() {
-  console.log("MobileNavMenu");
   return (
     <ul
       id="collapsible-content"
