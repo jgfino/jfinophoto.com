@@ -155,7 +155,8 @@ export const getCachedDrivePhotos = async (
   }
 
   if (!data) {
-    throw new Error(`No cached photos for ${page}`);
+    console.warn(`No cached photos for ${page}`);
+    return [];
   }
 
   const photos = JSON.parse(data.data) as DrivePhoto[];
