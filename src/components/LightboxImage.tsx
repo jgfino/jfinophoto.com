@@ -61,6 +61,7 @@ export function LightboxImage({
     >
       <Image
         onLoad={() => setLoaded(true)}
+        referrerPolicy="no-referrer"
         alt="alt"
         src={src}
         height={height}
