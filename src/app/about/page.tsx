@@ -3,47 +3,34 @@ import julia from "../../../public/julia.jpg";
 
 export default async function About() {
   return (
-    <div className="p-8 flex flex-col items-center h-full lg:justify-center">
-      <div className="flex flex-col gap-8" style={{ maxWidth: 1000 }}>
-        <div className="flex flex-col lg:flex-row gap-8 items-center">
+    <div className="p-8 m-8 flex flex-col items-center lg:justify-center h-full lg:mt-20">
+      <div className="flex flex-col gap-8" style={{ maxWidth: 1200 }}>
+        <div className="flex flex-col lg:flex-row gap-20 items-center">
           <Image
             src={julia}
             alt="Julia Finocchiaro"
-            height={600}
+            height={700}
             style={{ objectFit: "contain" }}
           />
           <div>
             <p>
-              Hi! I&apos;m Julia, a concert, portrait, and event photographer.
-              Combining my love of live music and photography has been a dream
-              come true, and I am so grateful to work with so many talented
-              artists and creatives. At the end of the day I&apos;m still a fan
-              first, and I do my best to use this to my advantage to capture the
-              full experience and energy of a live performance.
+              Julia Finocchiaro is a concert, event, and portrait photographer
+              based in Boston, MA. When she&apos;s not in the pit at her
+              favorite artists&apos; shows, you&apos;ll find her in front of the
+              barricade capturing the magic of live music.
             </p>
             <br />
             <p>
-              Editing is my favorite part of the photography process, and while
-              I&apos;ve worked hard to perfect my own bright and colorful style,
-              I also enjoy taking a creative vision and bringing it to life, so
-              send me your inspo, Pinterest boards, or color palettes and
-              I&apos;ll do my best to match what you&apos;re looking for. I am
-              also available for photo editing services.
-            </p>
-            <br />
-            <p>
-              Previous clients include <b>Tessa Violet</b>, <b>The Kid LAROI</b>
-              , <b>Rise Against</b>,{" "}
+              Some of her previous clients include <b>Tessa Violet</b>,{" "}
+              <b>The Kid LAROI</b>, <b>Rise Against</b>,{" "}
               <b>Foundations Management (Zolita, The Brook and the Bluff)</b>,{" "}
               <b>We Three</b>, <b>Solence</b>, <b>Girli</b> and more. She has
-              photographed artists at venues from small local clubs to arenas
-              and stadiums, and have shot at major festivals including{" "}
-              <b>Gov Ball</b>, <b>Boston Calling</b>, and{" "}
-              <b>Head in the Clouds</b>
+              shot at major festivals including <b>Gov Ball</b>,{" "}
+              <b>Boston Calling</b>, and <b>Head in the Clouds NYC</b>
             </p>
             <br />
             <p>
-              She has had her work featured in various publications, including{" "}
+              Her work has been featured in various publications, including{" "}
               <a
                 href="https://www.instagram.com/unclearmag/?hl=en"
                 className="underline"
@@ -85,10 +72,10 @@ export default async function About() {
               for two years while she was a student there.
             </p>
             <br />
+            <br />
             <p>
               <b>Selected Written Work:</b>
             </p>
-            <br />
             <ul>
               <li>
                 <a
@@ -148,17 +135,19 @@ export default async function About() {
             </ul>
           </div>
         </div>
-        <p>
-          Julia is available for while based primarily in <b>Boston, MA</b> and{" "}
-          <b>NYC</b>, she is also available for travel.
+        <p className="text-center">
+          Looking for something specific? Feel free to send over your inspo,
+          Pinterest boards, or color palettes!
+        </p>
+        <p className="text-center">
+          While based primarily in <b>Boston, MA</b> and <b>NYC</b>, she is also
+          available for travel.
         </p>
         <a
           href="mailto:julia@jfino.photo.com"
           className="hover:underline self-center"
         >
-          <p className="text-xl font-semibold mb-16 lg:mb-0">
-            julia@jfinophoto.com
-          </p>
+          <p className="font-semibold mb-16 lg:mb-0">julia@jfinophoto.com</p>
         </a>
       </div>
     </div>

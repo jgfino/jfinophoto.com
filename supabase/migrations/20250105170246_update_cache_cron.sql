@@ -19,7 +19,7 @@ end;
 $$ language plpgsql;
 
 -- Cron Job name cannot be edited
-select cron.schedule('update-drive-cache', '* * * * *', 'CALL update_cache()');
+select cron.schedule('update-drive-cache', '* * * * *', 'SELECT update_cache()');
 
 select cron.alter_job(
   job_id := (select jobid from cron.job where jobname = 'update-drive-cache'),

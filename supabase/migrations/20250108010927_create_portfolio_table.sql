@@ -10,9 +10,3 @@ create table portfolio
 alter table portfolio
     enable row level security;
 
-create trigger update_updated_at
-    before update
-    on portfolio
-    for each row
-execute function update_updated_at();
-
