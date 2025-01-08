@@ -1,9 +1,8 @@
-import { DrivePhoto } from "@/lib/google/drive";
 import {
   addPhotoToPage,
   getCachedDrivePhotos,
   removePhotoFromPage,
-  updateCacheAndThumbnailLinks,
+  updateDrivePhotos,
 } from "@/lib/db/supabase";
 import { NavButton } from "@/components/NavButton";
 import { revalidatePath } from "next/cache";
@@ -14,6 +13,8 @@ import { revalidatePages } from "@/lib/util";
 // Number of photos per page
 const PAGE_SIZE = 100;
 
+export const maxDuration = 60;
+
 export default async function Edit({
   searchParams,
   params,
@@ -21,7 +22,7 @@ export default async function Edit({
   searchParams: Promise<{
     page?: number;
   }>;
-  params: Promise<{ type: Enums<"photo_page"> }>;
+  params: Promise<{ type: Enums<"photo_type"> }>;
 }) {
   const { type } = await params;
   const { page } = await searchParams;
@@ -33,24 +34,24 @@ export default async function Edit({
   );
 
   const onModalSubmit = async (
-    photo: DrivePhoto,
-    add?: Enums<"photo_page">,
-    remove?: Enums<"photo_page">
+    id: string,
+    add?: Enums<"photo_type">,
+    remove?: Enums<"photo_type">
   ) => {
     "use server";
     if (add) {
-      await addPhotoToPage(photo, add);
+      await addPhotoToPage(id, add);
       await revalidatePages(add);
     }
     if (remove) {
-      await removePhotoFromPage(photo.id, remove);
+      await removePhotoFromPage(id, remove);
       await revalidatePages(remove);
     }
   };
 
   const refreshDrivePhotos = async () => {
     "use server";
-    await updateCacheAndThumbnailLinks(true);
+    await updateDrivePhotos(false);
     revalidatePath(`/edit/all/${type}`);
   };
 

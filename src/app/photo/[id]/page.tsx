@@ -1,13 +1,17 @@
 import { LightboxImage } from "@/components/LightboxImage";
-import { getPhoto, getPhotos, PAGE_TYPES } from "@/lib/db/supabase";
-import { formatPath } from "@/lib/util";
+import {
+  getPortfolioPhoto,
+  getPortfolioPhotos,
+  PAGE_TYPES,
+} from "@/lib/db/supabase";
+import { redirect } from "next/navigation";
 
 export async function generateStaticParams() {
   console.debug("Generating static params for individual photo pages");
 
   const params = [];
   for (const page of PAGE_TYPES) {
-    const photos = await getPhotos(page);
+    const photos = await getPortfolioPhotos(page);
     for (const photo of photos) {
       params.push({ id: photo.drive_id });
     }
@@ -23,10 +27,10 @@ export default async function Photo({
   const { id } = await params;
 
   console.debug(`Rendering photo page for photo ${id}`);
-  const photo = await getPhoto(id);
+  const photo = await getPortfolioPhoto(id);
 
   if (!photo) {
-    throw new Error("Photo not found");
+    redirect("/");
   }
 
   return (
@@ -38,9 +42,7 @@ export default async function Photo({
           fill="contain"
         />
       </div>
-      <p className="text-center text-gray-500">
-        {formatPath(photo.path, true)}
-      </p>
+      <p className="text-center text-gray-500">{photo.name}</p>
     </div>
   );
 }

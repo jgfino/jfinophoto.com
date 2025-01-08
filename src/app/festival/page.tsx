@@ -1,12 +1,12 @@
 import Gallery from "@/components/Gallery";
-import { getPhotos } from "@/lib/db/supabase";
+import { getPortfolioPhotos } from "@/lib/db/supabase";
 import { redirect } from "next/navigation";
 import { Tables } from "../../../supabase/database.types";
 
 export default async function Festival() {
-  const photos = await getPhotos("festival");
+  const photos = await getPortfolioPhotos("festival");
 
-  const handleClick = async (photo: Tables<"photos">) => {
+  const handleClick = async (photo: Tables<"drive_cache">) => {
     "use server";
     redirect(`/photo/${photo.drive_id}`);
   };

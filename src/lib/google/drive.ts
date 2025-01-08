@@ -1,5 +1,5 @@
 import { drive_v3, google } from "googleapis";
-import { Enums } from "../../../supabase/database.types";
+import { Enums, TablesInsert } from "../../../supabase/database.types";
 
 const CONCERT_FOLDER = process.env.DRIVE_CONCERT_FOLDER!;
 const FESTIVAL_FOLDER = process.env.DRIVE_FESTIVAL_FOLDER!;
@@ -62,14 +62,10 @@ const getSubfolders = async (
 
 /**
  * Get all the photos in Google Drive for a given page type
- *
  * @param type The type of photos to get
+ * @returns The photos for the page
  */
-export const getDrivePhotos = async (
-  type: Enums<"photo_page">,
-) => {
-  console.log(`Getting Google Drive photos for ${type} page`);
-
+export const getDrivePhotos = async (type: Enums<"photo_type">) => {
   const startFolder = type === "live"
     ? CONCERT_FOLDER
     : type === "festival"
@@ -82,12 +78,33 @@ export const getDrivePhotos = async (
     throw new Error(`Invalid page type: ${type}`);
   }
 
+  console.log(`Getting ALL Google Drive photos for ${type} page`);
+
+  return getDrivePhotosFromFolders(type, [startFolder]);
+};
+
+/**
+ * Get all the photos in Google Drive for a given page type and update the cache.
+ * Optionally restrict to given parent folders.
+ *
+ * @param type The type of photos to get
+ * @param parentFolderIds The IDs of the parent folders to get the photos from
+ */
+export const getDrivePhotosFromFolders = async (
+  type: Enums<"photo_type">,
+  parentFolderIds: string[],
+) => {
+  if (parentFolderIds.length === 0) {
+    console.log(`No parent folders given`);
+    return [];
+  }
+
   const levels: Record<string, drive_v3.Schema$File[]> = {};
 
   let i = 0;
-  let currentFolders = [startFolder];
+  let currentFolders = [...parentFolderIds];
 
-  while (true) {
+  while (true && currentFolders.length > 0) {
     const res = await getSubfolders(currentFolders);
 
     if (res.length === 0) {
@@ -99,39 +116,13 @@ export const getDrivePhotos = async (
     currentFolders = res.map((f) => f.id!);
   }
 
-  // Now, make a neat map of the folders with lowest level ID (contains the photos) and an array of parent folders names
-  const foldersMap: Record<string, drive_v3.Schema$File[]> = {};
-
-  if (Object.keys(levels).length === 0) {
-    return [];
-  }
-
-  const lowestLevel = Object.keys(levels)[Object.keys(levels).length - 1];
-
-  for (const artist of levels[lowestLevel]) {
-    const parents = [artist];
-    let currentParent = artist;
-    for (let i = Number(lowestLevel) - 1; i >= 0; i--) {
-      const parent = levels[i].find((f) =>
-        currentParent.parents?.includes(f.id!)
-      );
-
-      if (!parent) {
-        throw new Error(
-          "Parent not found - Drive folder structure is incorrect",
-        );
-      }
-
-      currentParent = parent;
-      parents.push(parent);
-    }
-
-    foldersMap[artist.id!] = parents;
-  }
+  console.log(
+    `Getting Google Drive photos in ${currentFolders.length} folders`,
+  );
 
   // Now, query the photos in all the folders
   const photoQuery = `(${
-    (Object.keys(foldersMap)).map((f) => `'${f}' in parents`).join(
+    currentFolders.map((f) => `'${f}' in parents`).join(
       " or ",
     )
   }) and mimeType='image/jpeg'`;
@@ -143,10 +134,11 @@ export const getDrivePhotos = async (
     "files/parents",
     "files/thumbnailLink",
     "files/imageMediaMetadata",
+    "files/createdTime",
     "nextPageToken",
   ];
 
-  const photos = [];
+  const photos: TablesInsert<"drive_cache">[] = [];
 
   let nextPageToken: string | undefined | null;
 
@@ -165,21 +157,16 @@ export const getDrivePhotos = async (
 
     const resFiles = res.files || [];
 
-    // Get the parent folder paths for each photo
-    const photoMap: Record<string, string[]> = {};
-
-    for (const p of resFiles) {
-      photoMap[p.id!] = foldersMap[p.parents![0]].map((f) => f.name!);
-    }
-
-    const mappedPhotos = resFiles.map((p) => ({
-      id: p.id!,
+    const mappedPhotos: TablesInsert<"drive_cache">[] = resFiles.map((p) => ({
+      drive_id: p.id!,
       name: p.name!,
-      thumbnailLink: p.thumbnailLink!.replace("=s220", ""),
-      parentFolderId: p.parents![0],
+      page: type,
+      thumbnail_link: p.thumbnailLink!.replace("=s220", ""),
+      parent_folder_id: p.parents![0],
       width: p.imageMediaMetadata?.width || 0,
       height: p.imageMediaMetadata?.height || 0,
-      path: photoMap[p.id!],
+      drive_created_at: p.createdTime!,
+      image_metadata: p.imageMediaMetadata || {},
     }));
 
     photos.push(...mappedPhotos);
@@ -189,7 +176,3 @@ export const getDrivePhotos = async (
 
   return photos;
 };
-
-export type DrivePhoto = Awaited<
-  ReturnType<typeof getDrivePhotos>
->[number];

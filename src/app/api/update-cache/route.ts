@@ -1,4 +1,4 @@
-import { updateCacheAndThumbnailLinks } from "@/lib/db/supabase";
+import { updateDrivePhotos } from "@/lib/db/supabase";
 import { revalidatePages } from "@/lib/util";
 
 export const maxDuration = 60;
@@ -11,10 +11,8 @@ export async function POST(request: Request): Promise<Response> {
     return new Response("Unauthorized", { status: 401 });
   }
 
-  console.log("Updating cache...");
-
   try {
-    await updateCacheAndThumbnailLinks(true);
+    await updateDrivePhotos(true);
     revalidatePages("live");
     revalidatePages("festival");
     revalidatePages("portrait");

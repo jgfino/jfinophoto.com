@@ -1,44 +1,43 @@
 "use client";
 
-import { DrivePhoto } from "@/lib/google/drive";
 import { Enums, Tables } from "../../supabase/database.types";
 import InteractiveResponsiveGrid, {
   GridItem,
 } from "./InteractiveResponsiveGrid";
-import { formatPath, isDrivePhoto, shuffleArray } from "@/lib/util";
+import { shuffleArray } from "@/lib/util";
 import { useCallback, useEffect, useState } from "react";
 import { LightboxImage } from "./LightboxImage";
 import Shuffle from "../../public/shuffle.svg";
 import { NavButton } from "./NavButton";
 import { EditModal } from "./EditModal";
 
-interface GalleryProps<T extends DrivePhoto | Tables<"photos">> {
+interface GalleryProps {
   photoSize: number;
-  photos: T[];
+  photos: Tables<"drive_cache">[];
 
   showHoverText?: boolean;
-  onPhotoClick?: (photo: T) => void;
+  onPhotoClick?: (photo: Tables<"drive_cache">) => void;
 
   showShuffle?: boolean;
   animated?: boolean;
 
   showSave?: boolean;
-  onPhotosSelected?: (photos: T[]) => void;
+  onPhotosSelected?: (photos: Tables<"drive_cache">[]) => void;
 
   showModal?: boolean;
   onModalSubmit?: (
-    photo: DrivePhoto,
-    add?: Enums<"photo_page">,
-    remove?: Enums<"photo_page">
+    id: string,
+    add?: Enums<"photo_type">,
+    remove?: Enums<"photo_type">
   ) => Promise<void>;
 }
 
 type GalleryPhoto = GridItem & {
   src: string;
-  original: DrivePhoto | Tables<"photos">;
+  original: Tables<"drive_cache">;
 };
 
-export default function Gallery<T extends DrivePhoto | Tables<"photos">>({
+export default function Gallery({
   photos,
   photoSize,
   showHoverText = true,
@@ -49,18 +48,16 @@ export default function Gallery<T extends DrivePhoto | Tables<"photos">>({
   onPhotosSelected,
   showModal,
   onModalSubmit,
-}: GalleryProps<T>) {
+}: GalleryProps) {
   const [items, setItems] = useState<GalleryPhoto[]>([]);
   useEffect(() => {
     const shuffledPhotos = showShuffle ? shuffleArray(photos) : photos;
     setItems(
       shuffledPhotos.map((p) => ({
-        key: isDrivePhoto(p) ? p.id : p.drive_id,
+        key: p.drive_id,
         width: p.width,
         height: p.height,
-        src: `${
-          isDrivePhoto(p) ? p.thumbnailLink : p.thumbnail_link
-        }=s${photoSize}`,
+        src: `${p.thumbnail_link}=s${photoSize}`,
         original: p,
       }))
     );
@@ -68,12 +65,12 @@ export default function Gallery<T extends DrivePhoto | Tables<"photos">>({
 
   const [selectedItems, setSelectedItems] = useState<GalleryPhoto[]>([]);
 
-  const [modalPhoto, setModalPhoto] = useState<DrivePhoto>();
+  const [modalPhoto, setModalPhoto] = useState<Tables<"drive_cache">>();
 
   const handleModalSubmit = useCallback(
-    async (add?: Enums<"photo_page">, remove?: Enums<"photo_page">) => {
+    async (add?: Enums<"photo_type">, remove?: Enums<"photo_type">) => {
       if (!modalPhoto) return;
-      await onModalSubmit?.(modalPhoto, add, remove);
+      await onModalSubmit?.(modalPhoto.drive_id, add, remove);
       setModalPhoto(undefined);
     },
     [onModalSubmit, modalPhoto]
@@ -89,7 +86,7 @@ export default function Gallery<T extends DrivePhoto | Tables<"photos">>({
           width={item.width}
           height={item.height}
           grayed={selected}
-          hoverText={showHoverText ? formatPath(item.original.path) : undefined}
+          hoverText={showHoverText ? item.original.name : undefined}
         />
       );
     },
@@ -103,7 +100,7 @@ export default function Gallery<T extends DrivePhoto | Tables<"photos">>({
           text="Save"
           className="self-center w-1/2 md:w-1/6"
           onClick={() =>
-            onPhotosSelected?.(selectedItems.map((p) => p.original as T))
+            onPhotosSelected?.(selectedItems.map((p) => p.original))
           }
         />
       )}
@@ -116,9 +113,9 @@ export default function Gallery<T extends DrivePhoto | Tables<"photos">>({
         renderItem={renderItem}
         onItemClicked={(item) => {
           if (showModal) {
-            setModalPhoto(item.original as DrivePhoto);
+            setModalPhoto(item.original);
           } else {
-            onPhotoClick?.(item.original as T);
+            onPhotoClick?.(item.original);
           }
         }}
       />

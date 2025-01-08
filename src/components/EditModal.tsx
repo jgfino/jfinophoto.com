@@ -4,7 +4,7 @@ import { Enums } from "../../supabase/database.types";
 import { NavButton } from "./NavButton";
 
 interface EditModalProps {
-  onSubmit: (add?: Enums<"photo_page">, remove?: Enums<"photo_page">) => void;
+  onSubmit: (add?: Enums<"photo_type">, remove?: Enums<"photo_type">) => void;
   onClose: () => void;
 }
 

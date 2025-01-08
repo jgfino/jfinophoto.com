@@ -37,87 +37,83 @@ export type Database = {
       drive_cache: {
         Row: {
           created_at: string
-          data: string
-          type: Database["public"]["Enums"]["photo_page"]
-        }
-        Insert: {
-          created_at?: string
-          data: string
-          type: Database["public"]["Enums"]["photo_page"]
-        }
-        Update: {
-          created_at?: string
-          data?: string
-          type?: Database["public"]["Enums"]["photo_page"]
-        }
-        Relationships: []
-      }
-      photos: {
-        Row: {
-          created_at: string
+          drive_created_at: string
           drive_id: string
           height: number
-          page: Database["public"]["Enums"]["photo_page"]
+          image_metadata: Json
+          name: string
+          page: Database["public"]["Enums"]["photo_type"]
           parent_folder_id: string
-          path: string[]
-          position: number
           thumbnail_link: string
-          thumbnail_updated_at: string
           updated_at: string
           width: number
         }
         Insert: {
-          created_at: string
+          created_at?: string
+          drive_created_at: string
           drive_id: string
           height: number
-          page: Database["public"]["Enums"]["photo_page"]
+          image_metadata: Json
+          name: string
+          page: Database["public"]["Enums"]["photo_type"]
           parent_folder_id: string
-          path: string[]
-          position?: number
           thumbnail_link: string
-          thumbnail_updated_at: string
-          updated_at: string
+          updated_at?: string
           width: number
         }
         Update: {
           created_at?: string
+          drive_created_at?: string
           drive_id?: string
           height?: number
-          page?: Database["public"]["Enums"]["photo_page"]
+          image_metadata?: Json
+          name?: string
+          page?: Database["public"]["Enums"]["photo_type"]
           parent_folder_id?: string
-          path?: string[]
-          position?: number
           thumbnail_link?: string
-          thumbnail_updated_at?: string
           updated_at?: string
           width?: number
         }
         Relationships: []
       }
-      profiles: {
+      portfolio: {
         Row: {
-          id: string
-          name: string
+          created_at: string
+          page: Database["public"]["Enums"]["photo_type"]
+          photo: string
         }
         Insert: {
-          id: string
-          name: string
+          created_at?: string
+          page: Database["public"]["Enums"]["photo_type"]
+          photo: string
         }
         Update: {
-          id?: string
-          name?: string
+          created_at?: string
+          page?: Database["public"]["Enums"]["photo_type"]
+          photo?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "portfolio_photo_fkey"
+            columns: ["photo"]
+            isOneToOne: false
+            referencedRelation: "drive_cache"
+            referencedColumns: ["drive_id"]
+          },
+        ]
       }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      update_cache: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
     }
     Enums: {
-      photo_page: "live" | "portrait" | "festival"
+      photo_type: "live" | "portrait" | "festival"
     }
     CompositeTypes: {
       [_ in never]: never

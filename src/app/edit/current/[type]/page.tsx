@@ -1,5 +1,5 @@
 import { Enums, Tables } from "../../../../../supabase/database.types";
-import { getPhotos, removePhotosFromPage } from "@/lib/db/supabase";
+import { getPortfolioPhotos, removePhotosFromPage } from "@/lib/db/supabase";
 import { NavButton } from "@/components/NavButton";
 import Gallery from "@/components/Gallery";
 import { revalidatePages } from "@/lib/util";
@@ -8,14 +8,14 @@ export default async function Edit({
   params,
 }: {
   params: Promise<{
-    type: Enums<"photo_page">;
+    type: Enums<"photo_type">;
   }>;
 }) {
   const { type } = await params;
 
-  const pagePhotos = await getPhotos(type);
+  const pagePhotos = await getPortfolioPhotos(type);
 
-  const onPhotosRemoved = async (photos: Tables<"photos">[]) => {
+  const onPhotosRemoved = async (photos: Tables<"drive_cache">[]) => {
     "use server";
     await removePhotosFromPage(
       photos.map((p) => p.drive_id),
