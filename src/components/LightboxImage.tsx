@@ -66,7 +66,7 @@ export function LightboxImage({
         height={height}
         width={width}
         fill={!!fill}
-        style={{ objectFit: fill, height: "100%" }}
+        style={{ objectFit: !!fill ? "contain" : "cover", height: "100%" }}
       />
       {hoverText && (
         <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-70 text-center p-2 hidden group-hover:block">

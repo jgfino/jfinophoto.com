@@ -64,13 +64,13 @@ export default async function Edit({
             <div className="flex flex-row flex-1 gap-4 justify-center">
               <NavButton
                 className="flex-1"
-                href={"/edit/all/live/1"}
+                href={"/edit/all/live"}
                 outline={type !== "live"}
                 text="LIVE"
               />
               <NavButton
                 className="flex-1"
-                href={"/edit/all/festival/1"}
+                href={"/edit/all/festival"}
                 outline={type !== "festival"}
                 text="FESTIVAL"
               />
@@ -102,6 +102,7 @@ export default async function Edit({
       </div>
       <div className="flex-1">
         <Gallery
+          animated
           photoSize={512}
           photos={drivePhotos}
           onModalSubmit={onModalSubmit}
