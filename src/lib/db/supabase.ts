@@ -57,7 +57,7 @@ export const removePhotoFromPage = async (
   const { error } = await serviceClient
     .from("portfolio")
     .delete()
-    .eq("drive_id", id)
+    .eq("photo", id)
     .eq("page", page);
 
   if (error) {
@@ -79,7 +79,7 @@ export const removePhotosFromPage = async (
   const { error } = await serviceClient
     .from("portfolio")
     .delete()
-    .in("drive_id", ids)
+    .in("photo", ids)
     .eq("page", page);
 
   if (error) {

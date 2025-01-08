@@ -53,6 +53,7 @@ export default async function Edit({
       </div>
       <div className="flex-1">
         <Gallery
+          animated
           showSave
           photoSize={512}
           photos={pagePhotos}
