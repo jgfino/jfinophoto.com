@@ -2,15 +2,14 @@
 
 import lottie, { AnimationItem } from "lottie-web";
 import * as HamburgerAnimation from "../animations/Hamburger.json";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 interface HamburgerProps {
-  onOpen: (open: boolean) => void;
+  open: boolean;
+  onClick: () => void;
 }
 
-export default function Hamburger({ onOpen }: HamburgerProps) {
-  const [open, setOpen] = useState(false);
-
+export default function Hamburger({ open, onClick }: HamburgerProps) {
   const hamburger = useRef<HTMLDivElement>(null);
   const animation = useRef<AnimationItem>(null);
 
@@ -28,19 +27,14 @@ export default function Hamburger({ onOpen }: HamburgerProps) {
     }
   }, []);
 
-  const toggleMenu = useCallback(() => {
-    animation.current?.playSegments(!open ? [0, 11] : [12, 22], true);
-    setOpen(!open);
-  }, [open]);
-
   useEffect(() => {
-    onOpen(open);
-  }, [onOpen, open]);
+    animation.current?.playSegments(open ? [0, 11] : [12, 22], true);
+  }, [open]);
 
   return (
     <div
       role="button"
-      onClick={toggleMenu}
+      onClick={onClick}
       className="hamburger w-8 h-8 text-black"
       ref={hamburger}
     />

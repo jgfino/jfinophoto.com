@@ -1,24 +1,38 @@
+"use client";
+
 import Link from "next/link";
 import Instagram from "../../public/instagram.svg";
 import Email from "../../public/mail.svg";
 
-export default function MobileNavMenu() {
+interface MobileNavMenuProps {
+  onItemClicked: () => void;
+}
+
+export default function MobileNavMenu({ onItemClicked }: MobileNavMenuProps) {
   return (
     <ul
       id="collapsible-content"
       className={`h-full flex flex-col items-center justify-center gap-6 text-xl`}
     >
       <li className="hover:text-gray-600">
-        <Link href="/">LIVE</Link>
+        <Link onClick={onItemClicked} href="/">
+          LIVE
+        </Link>
       </li>
       <li className="hover:text-gray-600">
-        <Link href="/festival">FESTIVAL</Link>
+        <Link onClick={onItemClicked} href="/festival">
+          FESTIVAL
+        </Link>
       </li>
       <li className="hover:text-gray-600">
-        <Link href="/portrait">PORTRAIT</Link>
+        <Link onClick={onItemClicked} href="/portrait">
+          PORTRAIT
+        </Link>
       </li>
       <li className="hover:text-gray-600">
-        <Link href="/about">ABOUT</Link>
+        <Link onClick={onItemClicked} href="/about">
+          ABOUT
+        </Link>
       </li>
       <li className="h-8 w-8 mt-8">
         <Link target="_blank" href="https://instagram.com/jfino.photo">

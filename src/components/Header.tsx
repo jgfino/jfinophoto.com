@@ -2,15 +2,12 @@ import Link from "next/link";
 import MobileNavWrapper from "./MobileNavWrapper";
 import Instagram from "../../public/instagram.svg";
 import Email from "../../public/mail.svg";
-import MobileNavMenu from "./MobileNavMenu";
 
 export function Header() {
   return (
     <nav className="md:pb-0 md:p-16 pb-0 p-4">
       <div className="flex flex-row items-center justify-between w-full">
-        <MobileNavWrapper className="md:hidden">
-          <MobileNavMenu />
-        </MobileNavWrapper>
+        <MobileNavWrapper className="md:hidden" />
         <Link href="/" className="hidden md:block md:text-4xl font-bold">
           JULIA FINOCCHIARO
         </Link>

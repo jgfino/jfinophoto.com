@@ -3,18 +3,15 @@
 import { useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import MobileNavMenu from "./MobileNavMenu";
 
 const Hamburger = dynamic(() => import("./Hamburger"), { ssr: false });
 
 export interface HamburgerProps {
   className?: string;
-  children?: React.ReactNode;
 }
 
-export default function MobileNavWrapper({
-  className,
-  children,
-}: HamburgerProps) {
+export default function MobileNavWrapper({ className }: HamburgerProps) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -23,7 +20,7 @@ export default function MobileNavWrapper({
         <Link href="/" className="text-2xl font-bold">
           JULIA FINOCCHIARO
         </Link>
-        <Hamburger onOpen={setOpen} />
+        <Hamburger open={open} onClick={() => setOpen(!open)} />
       </div>
       <div
         className={`h-full absolute left-0 right-0 z-50 bg-white duration-300 motion-reduce:duration-0 ${
@@ -31,7 +28,7 @@ export default function MobileNavWrapper({
         }`}
         id="navbar-default"
       >
-        {children}
+        <MobileNavMenu onItemClicked={() => setOpen(false)} />
       </div>
     </div>
   );
