@@ -155,8 +155,9 @@ export const getCachedDrivePhotos = async (
   }
 
   if (!data) {
-    console.warn(`No cached photos for ${page}`);
-    return [];
+    console.warn(`No cached photos for ${page}, fetching from drive`);
+    await updateCacheAndThumbnailLinks(true);
+    return getCachedDrivePhotos(page, limit, offset);
   }
 
   const photos = JSON.parse(data.data) as DrivePhoto[];
