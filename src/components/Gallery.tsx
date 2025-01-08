@@ -4,7 +4,7 @@ import { Enums, Tables } from "../../supabase/database.types";
 import InteractiveResponsiveGrid, {
   GridItem,
 } from "./InteractiveResponsiveGrid";
-import { shuffleArray } from "@/lib/util";
+import { formatFilename, shuffleArray } from "@/lib/util";
 import { useCallback, useEffect, useState } from "react";
 import { LightboxImage } from "./LightboxImage";
 import Shuffle from "../../public/shuffle.svg";
@@ -86,7 +86,9 @@ export default function Gallery({
           width={item.width}
           height={item.height}
           grayed={selected}
-          hoverText={showHoverText ? item.original.name : undefined}
+          hoverText={
+            showHoverText ? formatFilename(item.original.name) : undefined
+          }
         />
       );
     },

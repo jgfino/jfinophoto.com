@@ -4,6 +4,7 @@ import {
   getPortfolioPhotos,
   PAGE_TYPES,
 } from "@/lib/db/supabase";
+import { formatFilename } from "@/lib/util";
 import { redirect } from "next/navigation";
 
 export async function generateStaticParams() {
@@ -42,7 +43,9 @@ export default async function Photo({
           fill="contain"
         />
       </div>
-      <p className="text-center text-gray-500">{photo.name}</p>
+      <p className="text-center text-gray-500">
+        {formatFilename(photo.name, true)}
+      </p>
     </div>
   );
 }
