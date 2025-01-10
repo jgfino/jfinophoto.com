@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Hind_Vadodara } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/Header";
+import { Analytics } from "@vercel/analytics/react";
 
 const hindVadodara = Hind_Vadodara({
   subsets: ["latin"],
@@ -24,6 +25,7 @@ export default async function RootLayout({
       <body className={`${hindVadodara.className} antialiased flex flex-col`}>
         <Header />
         {children}
+        <Analytics />
       </body>
     </html>
   );

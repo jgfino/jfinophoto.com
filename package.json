@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.47.10",
+    "@vercel/analytics": "^1.4.1",
     "googleapis": "^144.0.0",
     "lottie-web": "^5.12.2",
     "next": "^15.1.3",
