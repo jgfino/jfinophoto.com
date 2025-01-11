@@ -123,7 +123,7 @@ export default function Gallery({
       />
       {showShuffle && (
         <button
-          className="shadow-lg xl:shadow-none xl:absolute xl:bottom-auto text-black xl:top-16 bottom-4 xl:left-0 xl:right-0 p-2 fixed self-center justify-self-center bg-white px-8 rounded-full"
+          className="xl:absolute xl:top-16 xl:bottom-auto xl:shadow-none self-center bg-white p-2 px-8 rounded-full fixed justify-self-center shadow-lg bottom-4"
           onClick={() => {
             setItems((prev) => {
               return shuffleArray(prev);

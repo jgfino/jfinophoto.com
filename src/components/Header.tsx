@@ -25,10 +25,12 @@ export function Header() {
             <li className="hover:text-gray-600">
               <Link href="/about">ABOUT</Link>
             </li>
-            <li className="flex flex-row gap-8 ml-8 h-8">
+            <li className="h-8 w-8 ml-4">
               <Link target="_blank" href="https://instagram.com/jfino.photo">
                 <Instagram height="100%" />
               </Link>
+            </li>
+            <li className="h-8 w-8">
               <Link href="mailto:julia@jfinophoto.com">
                 <Email height="100%" />
               </Link>
