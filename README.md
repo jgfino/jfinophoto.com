@@ -1,36 +1,23 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## [jfinophoto.com](https://jfinophoto.com/)
 
-## Getting Started
+This is my personal photography portfolio to showcase my concert, music festival, and event photography.
 
-First, run the development server:
+### Tech Stack
+- Typescript
+- Next.js
+- TailwindCSS
+- Google Drive APIs
+- Supabase (PostgreSQL)
+- Vercel (hosting)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### Photo Caching
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The photos on the site are populated from a Google Drive where I upload all my edited photos. A hidden edit page allows me to add/remove photos from each of the pages. Photo links are thumbnail links obtained via the Google Drive API. They are refreshed once per hour and stored in a table in Supabase to prevent making too many calls to the API.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+When working on this project, I wanted to prioritize speed and responsiveness, especially on mobile. Photo-heavy sites can sometimes have a lot of layout issues or be slow to load, so I wanted to make sure to keep it simple while still incorporating some simple animations with CSS and intersection observers.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Next Steps
+- Nicer editing interface
+- SEO optimization
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+![Screenshot 2025-01-29 at 8 43 54 PM](https://github.com/user-attachments/assets/09b43262-46e9-4e81-81a6-462079402a32)
