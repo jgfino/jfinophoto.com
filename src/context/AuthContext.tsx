@@ -19,10 +19,23 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    browserClient.auth.onAuthStateChange((_event, session) => {
+    const loadSession = async () => {
+      const { data } = await browserClient.auth.getSession();
+      setUser(data.session?.user ?? null);
+    };
+
+    loadSession();
+
+    const {
+      data: { subscription },
+    } = browserClient.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
     });
-  });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
 
   return (
     <AuthContext.Provider value={{ user }}>{children}</AuthContext.Provider>
