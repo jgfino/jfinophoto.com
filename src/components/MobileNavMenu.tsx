@@ -49,7 +49,7 @@ export default function MobileNavMenu({ onItemClicked }: MobileNavMenuProps) {
         <Link href="mailto:julia@jfinophoto.com">JULIA@JFINOPHOTO.COM</Link>
       </li>
       <li className="mt-6">
-        <LogoutButton className="text-sm" onSignedOut={onItemClicked} />
+        <LogoutButton className="text-sm" />
       </li>
     </ul>
   );

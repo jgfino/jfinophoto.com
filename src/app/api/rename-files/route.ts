@@ -1,4 +1,4 @@
-import { renameFiles } from "@/lib/google/drive";
+// import { renameFiles } from "@/lib/google/drive";
 
 export const maxDuration = 60;
 
@@ -10,7 +10,7 @@ export async function POST(request: Request): Promise<Response> {
     return new Response("Unauthorized", { status: 401 });
   }
 
-  await renameFiles();
+  // await renameFiles();
 
   return new Response("Renamed files", { status: 200 });
 }
