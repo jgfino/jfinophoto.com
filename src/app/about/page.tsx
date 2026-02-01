@@ -1,22 +1,22 @@
-import Image from "next/image";
-import julia from "../../../public/julia.jpg";
+// import Image from "next/image";
+// import julia from "../../../public/julia.jpg";
 
 export default async function About() {
   return (
     <div className="p-8 m-8 flex flex-col items-center lg:justify-center h-full lg:mt-20">
       <div className="flex flex-col gap-8" style={{ maxWidth: 1200 }}>
         <div className="flex flex-col lg:flex-row gap-20 items-center">
-          <Image
+          {/* <Image
             src={julia}
             alt="Julia Finocchiaro"
             height={700}
             style={{ objectFit: "contain" }}
-          />
+          /> */}
           <div>
             <p>
               Julia Finocchiaro is a concert, event, and portrait photographer
-              based in Boston, MA. When she&apos;s not in the pit at her
-              favorite artists&apos; shows, you&apos;ll find her in front of the
+              based in NYC. When she&apos;s not in the pit at her favorite
+              artists&apos; shows, you&apos;ll find her in front of the
               barricade capturing the magic of live music.
             </p>
             <br />
@@ -31,6 +31,15 @@ export default async function About() {
             <br />
             <p>
               Her work has been featured in various publications, including{" "}
+              <a
+                href="https://first3noflash.press/author/julia-finocchiaro/"
+                className="underline"
+                target="_blank"
+                rel="noreferrer"
+              >
+                <b>First III No Flash</b>
+              </a>
+              ,{" "}
               <a
                 href="https://www.instagram.com/unclearmag/?hl=en"
                 className="underline"
@@ -90,6 +99,28 @@ export default async function About() {
               </li>
               <li>
                 <a
+                  href="https://first3noflash.press/boston-calling-2025-a-memorial-day-staple-brings-music-for-everyone/"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="underline"
+                >
+                  Festival Review: Boston Calling 2025{" "}
+                  <i>(First III No Flash)</i>
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://respectyouryoungers.com/reviews/the-clancy-tour-jones-breach/"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="underline"
+                >
+                  Show Review: Twenty One Pilots - The Clancy Tour: Breach{" "}
+                  <i>(Respect Your Youngers)</i>
+                </a>
+              </li>
+              <li>
+                <a
                   href="http://respectyouryoungers.com/reviews/noah-kahan-took-89-to-boston-and-sold-out-fenway-park/"
                   target="_blank"
                   rel="noreferrer"
@@ -97,17 +128,6 @@ export default async function About() {
                 >
                   Show Review: Noah Kahan @ Fenway Park{" "}
                   <i>(Respect Your Youngers)</i>
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://www.tastemakersmag.com/show-reviews/taylor-swift-gillette"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="underline"
-                >
-                  Show Review: Taylor Swift&apos;s The Eras Tour{" "}
-                  <i>(Tastemakers Magazine)</i>
                 </a>
               </li>
               <li>
@@ -123,13 +143,13 @@ export default async function About() {
               </li>
               <li>
                 <a
-                  href="https://respectyouryoungers.com/reviews/valley-boston-2024/"
+                  href="https://www.tastemakersmag.com/show-reviews/taylor-swift-gillette"
                   target="_blank"
                   rel="noreferrer"
                   className="underline"
                 >
-                  Show Review: Valley @ House of Blues{" "}
-                  <i>(Respect Your Youngers)</i>
+                  Show Review: Taylor Swift&apos;s The Eras Tour{" "}
+                  <i>(Tastemakers Magazine)</i>
                 </a>
               </li>
             </ul>
@@ -140,11 +160,10 @@ export default async function About() {
           Pinterest boards, or color palettes!
         </p>
         <p className="text-center">
-          While based primarily in <b>Boston, MA</b> and <b>NYC</b>, she is also
-          available for travel.
+          While based primarily in <b>NYC</b>, she is also available for travel.
         </p>
         <a
-          href="mailto:julia@jfino.photo.com"
+          href="mailto:julia@jfinophoto.com"
           className="hover:underline self-center"
         >
           <p className="font-semibold mb-16 lg:mb-0">julia@jfinophoto.com</p>
