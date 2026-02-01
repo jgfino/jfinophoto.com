@@ -10,15 +10,26 @@ export function shuffleArray<T>(array: T[]) {
 }
 
 export const formatFilename = (path: string, full = false) => {
-  const parts = path.split("_");
+  const baseName = path.replace(/\.[^.]+$/, "");
+  const parts = baseName.split("_");
+  const normalizedParts = [...parts];
+  const lastPart = normalizedParts.at(-1);
 
-  if (parts.length < 5 || parts.length > 6) {
+  if (lastPart) {
+    const match = lastPart.match(/^(.*)-(\d+)$/);
+    if (match && match[1]) {
+      normalizedParts[normalizedParts.length - 1] = match[1];
+      normalizedParts.push(match[2]);
+    }
+  }
+
+  if (normalizedParts.length < 5 || normalizedParts.length > 6) {
     // Unknown format
     console.warn(`Unknown format for path: ${path}`);
     return path;
   }
 
-  const date = parts[0];
+  const date = normalizedParts[0];
   const dateParts = date.split("-");
 
   const dateObj = new Date(
@@ -27,7 +38,7 @@ export const formatFilename = (path: string, full = false) => {
     parseInt(dateParts[2] || "1"),
   );
 
-  const artist = parts[1];
+  const artist = normalizedParts[1];
 
   const formattedDate = dateObj.toLocaleDateString("en-US", {
     month: "long",
@@ -42,15 +53,15 @@ export const formatFilename = (path: string, full = false) => {
   }
 
   // Concert
-  if (parts.length === 5) {
-    const venue = parts.at(2);
-    const city = parts.at(3);
+  if (normalizedParts.length === 5) {
+    const venue = normalizedParts.at(2);
+    const city = normalizedParts.at(3);
 
     return `${formattedDate} - ${artist} @ ${venue}, ${city}`;
-  } else if (parts.length === 6) {
-    const festName = parts.at(2);
-    const venue = parts.at(3);
-    const city = parts.at(4);
+  } else if (normalizedParts.length === 6) {
+    const festName = normalizedParts.at(2);
+    const venue = normalizedParts.at(3);
+    const city = normalizedParts.at(4);
 
     return `${formattedDate} - ${artist} @ ${festName} - ${venue}, ${city}`;
   }
