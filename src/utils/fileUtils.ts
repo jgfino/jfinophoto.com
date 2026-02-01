@@ -1,6 +1,3 @@
-import { revalidatePath } from "next/cache";
-import { Enums } from "../../supabase/database.types";
-
 export function shuffleArray<T>(array: T[]) {
   const copy = [...array];
   for (let i = copy.length - 1; i >= 0; i--) {
@@ -60,23 +57,4 @@ export const formatFilename = (path: string, full = false) => {
 
   // Unknown format
   return path;
-};
-
-export const revalidatePages = async (page: Enums<"photo_type">) => {
-  switch (page) {
-    case "live":
-      revalidatePath("/", "page");
-      revalidatePath("/edit/current/live");
-      break;
-    case "festival":
-      revalidatePath("/festival", "page");
-      revalidatePath("/edit/current/festival");
-      break;
-    case "portrait":
-      revalidatePath("/portrait", "page");
-      revalidatePath("/edit/current/portrait");
-      break;
-  }
-
-  revalidatePath("/photo/[id]", "page");
 };

@@ -3,9 +3,10 @@
 import { Enums, Tables } from "../../supabase/database.types";
 import InteractiveResponsiveGrid, {
   GridItem,
+  InteractiveResponsiveGridBreakpoints,
 } from "./InteractiveResponsiveGrid";
-import { formatFilename, shuffleArray } from "@/lib/util";
-import { useCallback, useEffect, useState } from "react";
+import { formatFilename, shuffleArray } from "@/utils/fileUtils";
+import { useEffect, useState } from "react";
 import { LightboxImage } from "./LightboxImage";
 import Shuffle from "../../public/shuffle.svg";
 import { NavButton } from "./NavButton";
@@ -28,8 +29,10 @@ interface GalleryProps {
   onModalSubmit?: (
     id: string,
     add?: Enums<"photo_type">,
-    remove?: Enums<"photo_type">
+    remove?: Enums<"photo_type">,
   ) => Promise<void>;
+
+  breakpoints?: InteractiveResponsiveGridBreakpoints;
 }
 
 type GalleryPhoto = GridItem & {
@@ -48,6 +51,7 @@ export default function Gallery({
   onPhotosSelected,
   showModal,
   onModalSubmit,
+  breakpoints,
 }: GalleryProps) {
   const [items, setItems] = useState<GalleryPhoto[]>([]);
   useEffect(() => {
@@ -59,7 +63,7 @@ export default function Gallery({
         height: p.height,
         src: `${p.thumbnail_link}=s${photoSize}`,
         original: p,
-      }))
+      })),
     );
   }, [photoSize, photos, showShuffle]);
 
@@ -67,33 +71,30 @@ export default function Gallery({
 
   const [modalPhoto, setModalPhoto] = useState<Tables<"drive_cache">>();
 
-  const handleModalSubmit = useCallback(
-    async (add?: Enums<"photo_type">, remove?: Enums<"photo_type">) => {
-      if (!modalPhoto) return;
-      await onModalSubmit?.(modalPhoto.drive_id, add, remove);
-      setModalPhoto(undefined);
-    },
-    [onModalSubmit, modalPhoto]
-  );
+  const handleModalSubmit = async (
+    add?: Enums<"photo_type">,
+    remove?: Enums<"photo_type">,
+  ) => {
+    if (!modalPhoto) return;
+    await onModalSubmit?.(modalPhoto.drive_id, add, remove);
+    setModalPhoto(undefined);
+  };
 
-  const renderItem = useCallback(
-    (item: GalleryPhoto, index: number, selected: boolean) => {
-      return (
-        <LightboxImage
-          key={index.toString()}
-          animated={animated ? "full" : undefined}
-          src={item.src}
-          width={item.width}
-          height={item.height}
-          grayed={selected}
-          hoverText={
-            showHoverText ? formatFilename(item.original.name) : undefined
-          }
-        />
-      );
-    },
-    [showHoverText, animated]
-  );
+  const renderItem = (item: GalleryPhoto, index: number, selected: boolean) => {
+    return (
+      <LightboxImage
+        key={index.toString()}
+        animated={animated ? "full" : undefined}
+        src={item.src}
+        width={item.width}
+        height={item.height}
+        grayed={selected}
+        hoverText={
+          showHoverText ? formatFilename(item.original.name) : undefined
+        }
+      />
+    );
+  };
 
   return (
     <div className="md:p-8 p-2 flex flex-col">
@@ -107,6 +108,7 @@ export default function Gallery({
         />
       )}
       <InteractiveResponsiveGrid
+        breakpoints={breakpoints}
         selectable={!!onPhotosSelected}
         onItemsSelected={setSelectedItems}
         items={items}

@@ -1,4 +1,4 @@
-import { getPortfolioPhotos } from "@/lib/db/supabase";
+import { getPortfolioPhotos } from "@/lib/supabase/service";
 import { Tables } from "../../supabase/database.types";
 import { redirect } from "next/navigation";
 import Gallery from "@/components/Gallery";

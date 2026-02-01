@@ -6,7 +6,7 @@ export const PAGE_TYPES = ["live", "festival", "portrait"] as const;
 
 const serviceClient = createClient<Database>(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_KEY!,
+  process.env.SUPABASE_SECRET_KEY!,
 );
 
 const portfolioWithPhotoQuery = (page?: Enums<"photo_type">) => {
@@ -161,6 +161,7 @@ export const updateDrivePhotos = async (portfolioOnly = true) => {
     if (portfolioOnly) {
       const portfolioPhotos = await getPortfolioPhotos(page);
       const folderIds = portfolioPhotos.map((p) => p.parent_folder_id);
+
       const drivePhotos = await getDrivePhotosFromFolders(page, folderIds);
 
       // Update cache entries

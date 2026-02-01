@@ -1,5 +1,5 @@
 import Gallery from "@/components/Gallery";
-import { getPortfolioPhotos } from "@/lib/db/supabase";
+import { getPortfolioPhotos } from "@/lib/supabase/service";
 import { redirect } from "next/navigation";
 import { Tables } from "../../../supabase/database.types";
 

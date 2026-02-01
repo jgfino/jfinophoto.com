@@ -2,6 +2,7 @@ import Link from "next/link";
 import MobileNavWrapper from "./MobileNavWrapper";
 import Instagram from "../../public/instagram.svg";
 import Email from "../../public/mail.svg";
+import LogoutButton from "./LogoutButton";
 
 export function Header() {
   return (
@@ -34,6 +35,9 @@ export function Header() {
               <Link href="mailto:julia@jfinophoto.com">
                 <Email height="100%" />
               </Link>
+            </li>
+            <li>
+              <LogoutButton />
             </li>
           </ul>
         </div>

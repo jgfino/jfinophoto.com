@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Instagram from "../../public/instagram.svg";
 import Email from "../../public/mail.svg";
+import LogoutButton from "./LogoutButton";
 
 interface MobileNavMenuProps {
   onItemClicked: () => void;
@@ -46,6 +47,9 @@ export default function MobileNavMenu({ onItemClicked }: MobileNavMenuProps) {
       </li>
       <li className="hover:text-gray-600 text-sm mt-8">
         <Link href="mailto:julia@jfinophoto.com">JULIA@JFINOPHOTO.COM</Link>
+      </li>
+      <li className="mt-6">
+        <LogoutButton className="text-sm" onSignedOut={onItemClicked} />
       </li>
     </ul>
   );

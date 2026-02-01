@@ -3,6 +3,7 @@ import { Hind_Vadodara } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/Header";
 import { Analytics } from "@vercel/analytics/react";
+import AuthProvider from "@/context/AuthContext";
 
 const hindVadodara = Hind_Vadodara({
   subsets: ["latin"],
@@ -23,9 +24,11 @@ export default async function RootLayout({
   return (
     <html lang="en" className="h-full">
       <body className={`${hindVadodara.className} antialiased flex flex-col`}>
-        <Header />
-        {children}
-        <Analytics />
+        <AuthProvider>
+          <Header />
+          {children}
+          <Analytics />
+        </AuthProvider>
       </body>
     </html>
   );

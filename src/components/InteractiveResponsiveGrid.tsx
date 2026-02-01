@@ -31,7 +31,7 @@ export const defaultBreakpoints: InteractiveResponsiveGridBreakpoints = {
 const responsiveLayoutFromBreakpoints = (
   breakpoints: InteractiveResponsiveGridBreakpoints,
   margin: number,
-  layout: Layout[]
+  layout: Layout[],
 ): ResponsiveProps => {
   const entries = Object.entries(breakpoints);
 
@@ -101,7 +101,7 @@ export default function InteractiveResponsiveGrid<T extends GridItem>({
   }, [initialItems]);
 
   const [selectedItems, setSelectedItems] = useState<T[]>(
-    initialSelectedItems ?? []
+    initialSelectedItems ?? [],
   );
 
   useEffect(() => {
@@ -123,7 +123,7 @@ export default function InteractiveResponsiveGrid<T extends GridItem>({
         };
 
         return cell;
-      })
+      }),
     );
   }, [items]);
 
@@ -138,7 +138,7 @@ export default function InteractiveResponsiveGrid<T extends GridItem>({
     });
 
     onItemsReordered?.(
-      orderedIds.map((id) => items.find((item) => item.key === id.i)!)
+      orderedIds.map((id) => items.find((item) => item.key === id.i)!),
     );
   }, [layoutConfig, items, onItemsReordered]);
 
@@ -193,14 +193,14 @@ export default function InteractiveResponsiveGrid<T extends GridItem>({
               setSelectedItems((prev) =>
                 prev.includes(item)
                   ? prev.filter((i) => i !== item)
-                  : [...prev, item]
+                  : [...prev, item],
               );
             }}
           >
             {renderItem(
               item,
               index,
-              selectedItems.find((i) => i.key === item.key) !== undefined
+              selectedItems.find((i) => i.key === item.key) !== undefined,
             )}
           </div>
         ))}

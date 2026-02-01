@@ -1,8 +1,11 @@
 import { Enums, Tables } from "../../../../../supabase/database.types";
-import { getPortfolioPhotos, removePhotosFromPage } from "@/lib/db/supabase";
+import {
+  getPortfolioPhotos,
+  removePhotosFromPage,
+} from "@/lib/supabase/service";
 import { NavButton } from "@/components/NavButton";
 import Gallery from "@/components/Gallery";
-import { revalidatePages } from "@/lib/util";
+import { revalidatePages } from "@/utils/pageUtils";
 
 export default async function Edit({
   params,
@@ -19,7 +22,7 @@ export default async function Edit({
     "use server";
     await removePhotosFromPage(
       photos.map((p) => p.drive_id),
-      type
+      type,
     );
     await revalidatePages(type);
   };

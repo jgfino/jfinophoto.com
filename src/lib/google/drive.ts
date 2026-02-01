@@ -24,38 +24,42 @@ const drive = google.drive({ version: "v3", auth });
 const getSubfolders = async (
   folderIds: string[],
 ): Promise<drive_v3.Schema$File[]> => {
-  let nextPageToken: string | undefined | null;
-
   const folders: drive_v3.Schema$File[] = [];
 
-  do {
-    const folderQuery = `(${
-      folderIds.map((f) => `'${f}' in parents`).join(" or ")
-    }) and mimeType='application/vnd.google-apps.folder'`;
+  const folderFields = [
+    "files/id",
+    "files/name",
+    "files/parents",
+    "nextPageToken",
+  ];
 
-    const folderFields = [
-      "files/id",
-      "files/name",
-      "files/parents",
-      "nextPageToken",
-    ];
+  const chunkSize = 100;
+  for (let start = 0; start < folderIds.length; start += chunkSize) {
+    const chunk = folderIds.slice(start, start + chunkSize);
+    let nextPageToken: string | undefined | null;
 
-    const res = (
-      await drive.files.list({
-        fields: folderFields.join(","),
-        q: folderQuery,
-        pageSize: 1000,
-        pageToken: nextPageToken || undefined,
-        orderBy: "name desc",
-      })
-    ).data as drive_v3.Schema$FileList;
+    do {
+      const folderQuery = `(${
+        chunk.map((f) => `'${f}' in parents`).join(" or ")
+      }) and mimeType='application/vnd.google-apps.folder'`;
 
-    if (res.files) {
-      folders.push(...res.files);
-    }
+      const res = (
+        await drive.files.list({
+          fields: folderFields.join(","),
+          q: folderQuery,
+          pageSize: 1000,
+          pageToken: nextPageToken || undefined,
+          orderBy: "name desc",
+        })
+      ).data as drive_v3.Schema$FileList;
 
-    nextPageToken = res.nextPageToken;
-  } while (nextPageToken);
+      if (res.files) {
+        folders.push(...res.files);
+      }
+
+      nextPageToken = res.nextPageToken;
+    } while (nextPageToken);
+  }
 
   return folders;
 };
@@ -120,13 +124,6 @@ export const getDrivePhotosFromFolders = async (
     `Getting Google Drive photos in ${currentFolders.length} folders`,
   );
 
-  // Now, query the photos in all the folders
-  const photoQuery = `(${
-    currentFolders.map((f) => `'${f}' in parents`).join(
-      " or ",
-    )
-  }) and mimeType='image/jpeg'`;
-
   const photoFields = [
     "files/mimeType",
     "files/name",
@@ -135,42 +132,51 @@ export const getDrivePhotosFromFolders = async (
     "files/thumbnailLink",
     "files/imageMediaMetadata",
     "files/createdTime",
+    "files/modifiedTime",
     "nextPageToken",
   ];
 
   const photos: TablesInsert<"drive_cache">[] = [];
 
-  let nextPageToken: string | undefined | null;
+  const chunkSize = 100;
+  for (let start = 0; start < currentFolders.length; start += chunkSize) {
+    const chunk = currentFolders.slice(start, start + chunkSize);
+    const photoQuery = `(${
+      chunk.map((f) => `'${f}' in parents`).join(" or ")
+    }) and mimeType='image/jpeg'`;
 
-  do {
-    const res = (
-      await drive.files.list({
-        fields: photoFields.join(","),
-        q: photoQuery,
-        pageSize: 1000,
-        orderBy: "createdTime desc",
-        pageToken: nextPageToken || undefined,
-      })
-    ).data as drive_v3.Schema$FileList;
+    let nextPageToken: string | undefined | null;
 
-    nextPageToken = res.nextPageToken;
+    do {
+      const res = (
+        await drive.files.list({
+          fields: photoFields.join(","),
+          q: photoQuery,
+          pageSize: 1000,
+          orderBy: "createdTime desc",
+          pageToken: nextPageToken || undefined,
+        })
+      ).data as drive_v3.Schema$FileList;
 
-    const resFiles = res.files || [];
+      nextPageToken = res.nextPageToken;
 
-    const mappedPhotos: TablesInsert<"drive_cache">[] = resFiles.map((p) => ({
-      drive_id: p.id!,
-      name: p.name!,
-      page: type,
-      thumbnail_link: p.thumbnailLink!.replace("=s220", ""),
-      parent_folder_id: p.parents![0],
-      width: p.imageMediaMetadata?.width || 0,
-      height: p.imageMediaMetadata?.height || 0,
-      drive_created_at: p.createdTime!,
-      image_metadata: p.imageMediaMetadata || {},
-    }));
+      const resFiles = res.files || [];
 
-    photos.push(...mappedPhotos);
-  } while (nextPageToken);
+      const mappedPhotos: TablesInsert<"drive_cache">[] = resFiles.map((p) => ({
+        drive_id: p.id!,
+        name: p.name!,
+        page: type,
+        thumbnail_link: p.thumbnailLink!.replace("=s220", ""),
+        parent_folder_id: p.parents![0],
+        width: p.imageMediaMetadata?.width || 0,
+        height: p.imageMediaMetadata?.height || 0,
+        drive_created_at: p.modifiedTime!,
+        image_metadata: p.imageMediaMetadata || {},
+      }));
+
+      photos.push(...mappedPhotos);
+    } while (nextPageToken);
+  }
 
   console.log(`Found ${photos.length} photos for ${type} page`);
 

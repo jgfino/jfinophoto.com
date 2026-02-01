@@ -1,5 +1,5 @@
-import { updateDrivePhotos } from "@/lib/db/supabase";
-import { revalidatePages } from "@/lib/util";
+import { updateDrivePhotos } from "@/lib/supabase/service";
+import { revalidatePages } from "@/utils/pageUtils";
 
 export const maxDuration = 60;
 

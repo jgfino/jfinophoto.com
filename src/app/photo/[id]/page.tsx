@@ -3,8 +3,8 @@ import {
   getPortfolioPhoto,
   getPortfolioPhotos,
   PAGE_TYPES,
-} from "@/lib/db/supabase";
-import { formatFilename } from "@/lib/util";
+} from "@/lib/supabase/service";
+import { formatFilename } from "@/utils/fileUtils";
 import { redirect } from "next/navigation";
 
 export async function generateStaticParams() {

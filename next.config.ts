@@ -41,6 +41,8 @@ const nextConfig: NextConfig = {
     ],
     unoptimized: true,
   },
+
+  reactCompiler: true,
 };
 
 export default nextConfig;
