@@ -1,6 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { Database, Enums, Tables } from "../../../supabase/database.types";
-import { getDrivePhotos, getDrivePhotosFromFolders } from "../google/drive";
+import { getDrivePhotos, getDrivePhotosByIds } from "../google/drive";
 
 export const PAGE_TYPES = ["live", "festival", "portrait"] as const;
 
@@ -160,14 +160,33 @@ export const updateDrivePhotos = async (portfolioOnly = true) => {
   await Promise.all(PAGE_TYPES.map(async (page) => {
     if (portfolioOnly) {
       const portfolioPhotos = await getPortfolioPhotos(page);
-      const folderIds = portfolioPhotos.map((p) => p.parent_folder_id);
 
-      const drivePhotos = await getDrivePhotosFromFolders(page, folderIds);
+      console.log(
+        `Found ${portfolioPhotos.length} PORTFOLIO photos for ${page}`,
+      );
+
+      const driveIds = portfolioPhotos.map((p) => p.drive_id);
+
+      const start = performance.now();
+      const drivePhotos = await getDrivePhotosByIds(page, driveIds);
+      const end = performance.now();
+      console.log(
+        `Time taken to update ${driveIds.length} photos by ID: ${
+          end - start
+        }ms`,
+      );
 
       // Update cache entries
       await serviceClient.from("drive_cache").upsert(drivePhotos);
     } else {
+      const start = performance.now();
       const drivePhotos = await getDrivePhotos(page);
+      const end = performance.now();
+      console.log(
+        `Time taken to update ${drivePhotos.length} photos by ID: ${
+          end - start
+        }ms`,
+      );
 
       // Update cache entry
       await serviceClient.from("drive_cache").upsert(drivePhotos);

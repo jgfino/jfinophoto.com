@@ -182,3 +182,66 @@ export const getDrivePhotosFromFolders = async (
 
   return photos;
 };
+
+/**
+ * Get all the photos in Google Drive for a given page type and update the cache.
+ * @param type The type of photos to get
+ * @param driveIds The IDs of the photos to get
+ * @returns The photos for the page
+ */
+export const getDrivePhotosByIds = async (
+  type: Enums<"photo_type">,
+  driveIds: string[],
+): Promise<TablesInsert<"drive_cache">[]> => {
+  if (driveIds.length === 0) return [];
+  console.log(`Getting ${driveIds.length} photos by ID for ${type}`);
+  const fields = [
+    "mimeType",
+    "name",
+    "id",
+    "parents",
+    "thumbnailLink",
+    "imageMediaMetadata",
+    "createdTime",
+    "modifiedTime",
+  ].join(",");
+
+  const photos: TablesInsert<"drive_cache">[] = [];
+
+  const BATCH_SIZE = 25;
+
+  for (let i = 0; i < driveIds.length; i += BATCH_SIZE) {
+    const batch = driveIds.slice(i, i + BATCH_SIZE);
+    const results = await Promise.all(
+      batch.map(async (id) => {
+        try {
+          const { data: p } = await drive.files.get({ fileId: id, fields });
+          if (!p.id || !p.thumbnailLink) return null;
+          return {
+            drive_id: p.id,
+            name: p.name!,
+            page: type,
+            thumbnail_link: p.thumbnailLink.replace("=s220", ""),
+            parent_folder_id: p.parents?.[0] ?? "",
+            width: p.imageMediaMetadata?.width || 0,
+            height: p.imageMediaMetadata?.height || 0,
+            drive_created_at: p.modifiedTime!,
+            image_metadata: p.imageMediaMetadata || {},
+          } satisfies TablesInsert<"drive_cache">;
+        } catch (err) {
+          console.error(`Failed to fetch drive file ${id}:`, err);
+          return null;
+        }
+      }),
+    );
+
+    photos.push(...results.filter((r) => r !== null));
+
+    if (i + BATCH_SIZE < driveIds.length) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
+  }
+
+  console.log(`Found ${photos.length} photos for ${type}`);
+  return photos;
+};
