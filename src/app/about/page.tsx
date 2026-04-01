@@ -32,6 +32,15 @@ export default async function About() {
             <p>
               Her work has been featured in various publications, including{" "}
               <a
+                href="https://v13.net/author/julia-finocchiaro/"
+                className="underline"
+                target="_blank"
+                rel="noreferrer"
+              >
+                <b>v13 Media</b>
+              </a>
+              ,{" "}
+              <a
                 href="https://first3noflash.press/author/julia-finocchiaro/"
                 className="underline"
                 target="_blank"
@@ -88,13 +97,12 @@ export default async function About() {
             <ul>
               <li>
                 <a
-                  href="https://huntnewsnu.com/78040/lifestyle/reviews/bad-bunny-returns-to-boston-with-the-most-wanted-show/"
+                  href="https://v13.net/2026/03/innings-festival-tempe-beach-park-arizona-photos/"
                   target="_blank"
                   rel="noreferrer"
                   className="underline"
                 >
-                  Show Review: Bad Bunny&apos;s Most Wanted Tour{" "}
-                  <i>(The Huntington News)</i>
+                  Festival Review: Innings Festival 2026 <i>(v13 Media)</i>
                 </a>
               </li>
               <li>
@@ -106,6 +114,17 @@ export default async function About() {
                 >
                   Festival Review: Boston Calling 2025{" "}
                   <i>(First III No Flash)</i>
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://huntnewsnu.com/78040/lifestyle/reviews/bad-bunny-returns-to-boston-with-the-most-wanted-show/"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="underline"
+                >
+                  Show Review: Bad Bunny&apos;s Most Wanted Tour{" "}
+                  <i>(The Huntington News)</i>
                 </a>
               </li>
               <li>
@@ -128,17 +147,6 @@ export default async function About() {
                 >
                   Show Review: Noah Kahan @ Fenway Park{" "}
                   <i>(Respect Your Youngers)</i>
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://newenglandsounds.com/2023/08/30/live-review-photos-bruce-springsteen-and-the-e-street-band-08-26-23/"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="underline"
-                >
-                  Show Review: Bruce Springsteen @ Gillette Stadium{" "}
-                  <i>(New England Sounds)</i>
                 </a>
               </li>
               <li>
